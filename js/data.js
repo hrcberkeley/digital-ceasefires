@@ -7,7 +7,7 @@ import { CSV_URLS, SNAPSHOT_URL, CACHE_TTL_MS } from "./config.js";
 const CACHE_KEY = "ceasefire:data:v1";
 const TABS = ["site_text", "sections", "provisions", "options", "definitions", "law_clauses", "footnotes", "posts"];
 
-function parseCsv(text) {
+export function parseCsv(text) {
   const result = window.Papa.parse(text, { header: true, skipEmptyLines: true });
   return result.data;
 }

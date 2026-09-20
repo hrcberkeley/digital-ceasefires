@@ -2,9 +2,10 @@
 // reviewer (a token in localStorage) can write. One handbook-wide fetch feeds every
 // provision's thread so opening the reader doesn't fire one request per item.
 import { h, clear, formatDate, toast } from "./utils.js";
-import { t } from "./data.js";
+import { t, parseCsv } from "./data.js";
 import { getReviewer } from "./review-auth.js";
 import { postComment, getComments, ApiError } from "./api.js";
+import { FEEDBACK_CSV_URL } from "./config.js";
 
 const HANDBOOK_VERSION = "1.4";
 let allComments = null; // null = not loaded yet, [] = loaded but empty/unavailable
@@ -15,12 +16,54 @@ export async function preloadComments() {
     const res = await getComments(HANDBOOK_VERSION);
     allComments = res.comments || [];
   } catch (err) {
-    if (!(err instanceof ApiError) || err.code !== "not_configured") {
+    if (err instanceof ApiError && err.code === "not_configured") {
+      allComments = await loadCommentsFromSheet(); // Apps Script not deployed -- read the published feedback CSV directly
+    } else {
       console.warn("Couldn't load reviewer comments:", err);
+      allComments = [];
     }
-    allComments = [];
   }
   return allComments;
+}
+
+// Read-only mirror of the Apps Script backend's getPublicComments(), since a published
+// CSV has no cache/version filtering of its own -- see apps-script/Code.gs.
+async function loadCommentsFromSheet() {
+  if (!FEEDBACK_CSV_URL) return [];
+  try {
+    const res = await fetch(FEEDBACK_CSV_URL, { cache: "no-store" });
+    if (!res.ok) return [];
+    const rows = parseCsv(await res.text());
+    const visible = rows.filter((r) => r.status === "visible" && r.handbook_version === HANDBOOK_VERSION);
+    const hiddenParentIds = new Set(rows.filter((r) => r.status === "hidden").map((r) => r.comment_id));
+    const visibleParentIds = new Set(visible.map((r) => r.parent_id).filter(Boolean));
+    const publicRows = visible.map(publicCommentFields);
+    for (const hiddenId of hiddenParentIds) {
+      if (visibleParentIds.has(hiddenId) && !publicRows.some((r) => r.comment_id === hiddenId)) {
+        const hiddenRow = rows.find((r) => r.comment_id === hiddenId);
+        if (hiddenRow) publicRows.push(publicCommentFields({ ...hiddenRow, status: "hidden", body: "" }));
+      }
+    }
+    return publicRows;
+  } catch (err) {
+    console.warn("Couldn't load feedback from published sheet:", err);
+    return [];
+  }
+}
+
+function publicCommentFields(r) {
+  return {
+    comment_id: r.comment_id,
+    parent_id: r.parent_id,
+    role: r.role,
+    target: r.provision_id,
+    target_id: r.provision_id,
+    target_type: r.target_type,
+    selected_text: r.selected_text,
+    body: r.status === "hidden" ? "" : r.body,
+    status: r.status,
+    created_at: r.created_at,
+  };
 }
 
 function threadFor(targetId) {

@@ -1,6 +1,8 @@
 // Reviewer sign-in: the token lives only in localStorage, never in a visible
 // URL after the initial email-link visit (PRD s.7 "Token handling").
-import { whoAmI } from "./api.js";
+import { whoAmI, ApiError } from "./api.js";
+import { parseCsv } from "./data.js";
+import { REVIEWERS_CSV_URL } from "./config.js";
 
 const KEY = "ceasefire:reviewer:v1";
 
@@ -18,10 +20,25 @@ export function getReviewerToken() {
 }
 
 export async function signInWithToken(token) {
-  const res = await whoAmI(token); // throws ApiError("invalid_token") if not active
-  const reviewer = { token, role: res.role };
+  let role;
+  try {
+    role = (await whoAmI(token)).role; // throws ApiError("invalid_token") if not active
+  } catch (err) {
+    if (!(err instanceof ApiError) || err.code !== "not_configured") throw err;
+    role = await lookupRoleFromSheet(token); // Apps Script not deployed -- read the published reviewers CSV directly
+  }
+  const reviewer = { token, role };
   localStorage.setItem(KEY, JSON.stringify(reviewer));
   return reviewer;
+}
+
+async function lookupRoleFromSheet(token) {
+  if (!REVIEWERS_CSV_URL) throw new ApiError("invalid_token");
+  const res = await fetch(REVIEWERS_CSV_URL, { cache: "no-store" });
+  if (!res.ok) throw new ApiError("invalid_token");
+  const match = parseCsv(await res.text()).find((r) => r.token === token && r.status === "active");
+  if (!match) throw new ApiError("invalid_token");
+  return match.role;
 }
 
 export function signOutReviewer() {
