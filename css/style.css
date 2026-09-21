@@ -137,8 +137,14 @@ button { font: inherit; }
 
 /* ---------- Layout helpers ---------- */
 .view { min-height: 60vh; }
-.loading-spinner {
-  width: 32px; height: 32px; margin: var(--space-7) auto; border-radius: 50%;
+/* fixed so it takes no space: a route may scroll to an anchor before the router removes it */
+.loading {
+  position: fixed; top: 50%; left: 50%; translate: -50% -50%;
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-3);
+  color: var(--color-ink-soft); font-size: 0.95rem;
+}
+.loading::before {
+  content: ""; width: 32px; height: 32px; border-radius: 50%;
   border: 3px solid var(--color-border); border-top-color: var(--color-primary);
   animation: spin 0.7s linear infinite;
 }

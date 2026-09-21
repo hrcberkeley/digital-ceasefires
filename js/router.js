@@ -1,8 +1,9 @@
 // Hash-based routing so the site works on any static host without server rewrites
 // (PRD s.5 "Routing"). Routes are registered as `/path/:param` patterns.
-import { clear } from "./utils.js";
+import { clear, h } from "./utils.js";
 
 const routes = [];
+const loader = h("div", { className: "loading", role: "status" }, "Loading...");
 let mountEl = null;
 let notFoundHandler = () => document.createTextNode("Not found");
 
@@ -39,9 +40,14 @@ async function render() {
     if (m) {
       const params = Object.fromEntries(r.paramNames.map((name, i) => [name, decodeURIComponent(m[i + 1])]));
       clear(mountEl);
+      mountEl.appendChild(loader); // removed in the same task for sync handlers, so it only ever paints while one awaits
       mountEl.scrollTop = 0;
       window.scrollTo(0, 0);
-      await r.handler({ params, query, mountEl });
+      try {
+        await r.handler({ params, query, mountEl });
+      } finally {
+        loader.remove();
+      }
       return;
     }
   }
