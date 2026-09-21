@@ -39,7 +39,7 @@ const COMMENTS_CACHE_SECONDS = 60;
 
 /** Site URL the reviewer email link points at -- set this to where index.html
  *  is hosted (e.g. "https://hrcberkeley.github.io/digital-ceasefires/"). */
-const SITE_URL = "https://example.org/";
+const SITE_URL = "https://hrcberkeley.github.io/digital-ceasefires/";
 
 // ---------------------------------------------------------------------------
 // Triggers

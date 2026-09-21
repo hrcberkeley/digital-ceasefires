@@ -3,14 +3,14 @@
 // Until a tab has a URL, the site falls back straight to the bundled snapshot below --
 // that's what makes the site work out of the box before Google is wired up.
 export const CSV_URLS = {
-  site_text: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=724713379&single=true&output=csv",
-  sections: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=861688801&single=true&output=csv",
-  provisions: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=1609926639&single=true&output=csv",
-  options: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=352679907&single=true&output=csv",
-  definitions: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=202878497&single=true&output=csv",
-  law_clauses: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=142977822&single=true&output=csv",
-  footnotes: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=1586824256&single=true&output=csv",
-  posts: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=891525524&single=true&output=csv",
+  site_text: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=2062097190&single=true&output=csv",
+  sections: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=1623755899&single=true&output=csv",
+  provisions: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=1998644264&single=true&output=csv",
+  options: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=1985418343&single=true&output=csv",
+  definitions: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=258680377&single=true&output=csv",
+  law_clauses: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=1107480777&single=true&output=csv",
+  footnotes: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=279018003&single=true&output=csv",
+  posts: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=114496911&single=true&output=csv",
 };
 
 // Deploy > New deployment > Web app, then paste the /exec URL here. Enables posting new
@@ -29,8 +29,8 @@ export const APPS_SCRIPT_URL = "";
 // two _public tabs are one QUERY formula each (built by extract/build_workbook.py):
 // reviewers_public carries token_hash + role for active reviewers only, feedback_public
 // drops the token column. See README "Published tabs" for the setup steps.
-export const REVIEWERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=1646552475&single=true&output=csv";
-export const FEEDBACK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=955120672&single=true&output=csv";
+export const REVIEWERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=398409186&single=true&output=csv";
+export const FEEDBACK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=432450062&single=true&output=csv";
 
 // The Google Form owner-instructions step 4 creates for reviewer registration.
 export const REGISTRATION_FORM_URL = "";
