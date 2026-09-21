@@ -137,6 +137,12 @@ button { font: inherit; }
 
 /* ---------- Layout helpers ---------- */
 .view { min-height: 60vh; }
+.loading-spinner {
+  width: 32px; height: 32px; margin: var(--space-7) auto; border-radius: 50%;
+  border: 3px solid var(--color-border); border-top-color: var(--color-primary);
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .section-pad { padding: var(--space-6) 0; }
 .grid-two { display: grid; grid-template-columns: 280px 1fr; gap: var(--space-6); }
 .grid-two > * { min-width: 0; }
