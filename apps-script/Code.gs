@@ -57,7 +57,7 @@ function onRegistration(e) {
 
   const token = Utilities.getUuid(); // 122 bits of entropy -- safe to publish a hash of
   const sheet = getSheet(TAB_REVIEWERS);
-  sheet.appendRow([
+  appendAfterLastRow(sheet, [
     token,
     email,
     role || "",
@@ -319,6 +319,17 @@ function rowFromValues(columns, values) {
 function writeRow(sheet, rowNumber, columns, record) {
   const values = columns.map((col) => record[col]);
   sheet.getRange(rowNumber, 1, 1, columns.length).setValues([values]);
+}
+
+/** appendRow() writes below the last cell holding any value, and a checkbox column
+ *  counts as values all the way down (unticked = FALSE) -- so on `reviewers`, whose
+ *  approved/resend columns are checkboxes, appendRow() lands around row 1001.
+ *  This writes below the last row with something in column A (the id column). */
+function appendAfterLastRow(sheet, values) {
+  const ids = sheet.getRange("A:A").getValues();
+  let last = ids.length;
+  while (last > 0 && ids[last - 1][0] === "") last -= 1;
+  sheet.getRange(last + 1, 1, 1, values.length).setValues([values]);
 }
 
 function firstValue(arr) {
