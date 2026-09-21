@@ -223,7 +223,7 @@ function getPublicComments(version) {
 
   const sheet = getSheet(TAB_FEEDBACK);
   const rows = readRows(sheet, FEEDBACK_COLUMNS);
-  const visible = rows.filter((r) => r.status === "visible" && (!version || r.handbook_version === version));
+  const visible = rows.filter((r) => r.status === "visible" && (!version || String(r.handbook_version) === version));
   const hiddenParentIds = new Set(
     rows.filter((r) => r.status === "hidden").map((r) => r.comment_id)
   );

@@ -34,7 +34,7 @@ async function loadCommentsFromSheet() {
     const res = await fetch(FEEDBACK_CSV_URL, { cache: "no-store" });
     if (!res.ok) return [];
     const rows = parseCsv(await res.text());
-    const visible = rows.filter((r) => r.status === "visible" && r.handbook_version === HANDBOOK_VERSION);
+    const visible = rows.filter((r) => r.status === "visible" && String(r.handbook_version) === HANDBOOK_VERSION);
     const hiddenParentIds = new Set(rows.filter((r) => r.status === "hidden").map((r) => r.comment_id));
     const visibleParentIds = new Set(visible.map((r) => r.parent_id).filter(Boolean));
     const publicRows = visible.map(publicCommentFields);
@@ -81,40 +81,45 @@ function roleClass(role) {
   return `role-${(role || "other").toLowerCase().replace(/[^a-z]+/g, "-").split("-")[0] || "other"}`;
 }
 
-function renderComment(db, comment, byParent, container, target) {
+function renderComment(db, comment, byParent, ctx, isReply = false) {
   const replies = byParent.get(comment.comment_id) || [];
-  const node = h("div", { className: "comment-thread" }, [
-    comment.selected_text ? h("div", { className: "comment-quote" }, `"${comment.selected_text}"`) : null,
+  const node = h("div", { className: isReply ? "comment-reply" : "comment-thread" }, [
+    !isReply && comment.selected_text ? h("div", { className: "comment-quote" }, comment.selected_text) : null,
     h("div", { className: "comment-meta" }, [
       h("span", { className: `role-badge ${roleClass(comment.role)}` }, comment.role || "Reviewer"),
       h("span", {}, formatDate(comment.created_at)),
     ]),
     h("div", { className: "comment-body" }, comment.status === "hidden" ? t(db, "review.comment_removed", "Comment removed") : comment.body),
-    getReviewer() ? replyToggle(db, comment, container, target) : null,
-    h(
-      "div",
-      { className: "comment-replies" },
-      replies.map((r) => renderComment(db, r, byParent, container, target))
-    ),
+    ...replies.map((r) => renderComment(db, r, byParent, ctx, true)),
   ]);
+  if (!isReply && getReviewer()) node.appendChild(replyToggle(db, comment, ctx));
   return node;
 }
 
-function replyToggle(db, parent, container, target) {
-  const btn = h("button", { className: "btn btn-ghost btn-sm" }, t(db, "review.reply_button", "Reply"));
+function replyToggle(db, parent, ctx) {
+  const btn = h("button", { className: "comment-link" }, t(db, "review.reply_button", "Reply"));
   btn.addEventListener("click", () => {
-    const form = commentForm(db, target, { parentId: parent.comment_id }, () => rerenderThread(db, container, target));
+    const form = commentForm(db, ctx.target, { parentId: parent.comment_id, submitLabel: t(db, "review.reply_button", "Reply") }, ctx.rerender, () => { form.replaceWith(btn); layoutMarginThreads(); });
     btn.replaceWith(form);
+    form.querySelector("textarea").focus();
     layoutMarginThreads();
   });
   return btn;
 }
 
-function commentForm(db, target, { quote, offsets, parentId } = {}, onPosted) {
+function commentForm(db, target, { quote, offsets, parentId, submitLabel } = {}, onPosted, onCancel) {
   const reviewer = getReviewer();
-  const textarea = h("textarea", { placeholder: "Add your comment...", maxLength: 4000 });
+  const textarea = h("textarea", { placeholder: parentId ? "Reply..." : "Add your comment...", maxLength: 4000, rows: 2 });
   const error = h("div", { className: "form-error" }, "");
-  const submit = h("button", { className: "btn btn-primary btn-sm" }, t(db, "review.comment_button", "Comment"));
+  const submit = h("button", { className: "btn btn-primary btn-sm" }, submitLabel || t(db, "review.comment_button", "Comment"));
+  const cancel = h("button", { className: "btn btn-ghost btn-sm" }, "Cancel");
+  cancel.addEventListener("click", onCancel);
+  submit.disabled = true;
+  textarea.addEventListener("input", () => { submit.disabled = !textarea.value.trim(); });
+  textarea.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") onCancel();
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !submit.disabled) submit.click();
+  });
   submit.addEventListener("click", async () => {
     const body = textarea.value.trim();
     if (!body) return;
@@ -124,7 +129,7 @@ function commentForm(db, target, { quote, offsets, parentId } = {}, onPosted) {
         token: reviewer.token,
         targetId: target.id,
         targetType: target.type,
-        handbookVersion: "1.4",
+        handbookVersion: HANDBOOK_VERSION,
         selectedText: quote || "",
         startOffset: offsets?.start ?? "",
         endOffset: offsets?.end ?? "",
@@ -148,10 +153,10 @@ function commentForm(db, target, { quote, offsets, parentId } = {}, onPosted) {
       submit.disabled = false;
     }
   });
-  return h("div", { className: "comment-form stack" }, [
-    quote ? h("div", { className: "comment-quote" }, `"${quote}"`) : null,
+  return h("div", { className: "comment-form" }, [
+    quote ? h("div", { className: "comment-quote" }, quote) : null,
     textarea,
-    h("div", { className: "cluster" }, [submit]),
+    h("div", { className: "comment-form-actions" }, [cancel, submit]),
     error,
   ]);
 }
@@ -164,31 +169,34 @@ function errorMessage(db, err) {
   return t(db, "error.network", "Couldn't reach the server.");
 }
 
-function rerenderThread(db, container, target) {
-  clear(container);
-  container.appendChild(buildPanel(db, target));
-  layoutMarginThreads();
-}
-
-function buildPanel(db, target) {
+/** The thread card(s) for one target. With `quote` (from a text selection) or no
+ *  comments yet, the new-comment form starts open; otherwise it's behind "New comment". */
+function buildPanel(db, target, host, onClose, { quote, offsets } = {}) {
+  const ctx = { target, rerender: () => { clear(host); host.appendChild(buildPanel(db, target, host, onClose)); layoutMarginThreads(); } };
   const byParent = threadFor(target.id);
   const topLevel = byParent.get("") || [];
-  const wrap = h("div", { className: "comment-panel" });
-  wrap.appendChild(
-    h(
-      "div",
-      { className: "stack" },
-      topLevel.map((c) => renderComment(db, c, byParent, wrap, target))
-    )
-  );
-  if (getReviewer()) {
-    wrap.appendChild(commentForm(db, target, {}, () => rerenderThread(db, wrap, target)));
-  } else {
+  const close = h("button", { className: "comment-close", ariaLabel: "Close comments", title: "Close" }, "\u00d7");
+  close.addEventListener("click", (e) => { e.stopPropagation(); onClose(); });
+  const wrap = h("div", { className: "comment-panel" }, [close, ...topLevel.map((c) => renderComment(db, c, byParent, ctx))]);
+
+  if (!getReviewer()) {
     wrap.appendChild(h("p", { className: "small muted" }, [
       "Sign in as a reviewer to comment -- ",
       h("a", { href: "#/review/register" }, t(db, "review.register_title", "Become a reviewer")),
       ".",
     ]));
+  } else if (quote || !topLevel.length) {
+    // cancelling a brand-new comment closes the panel; cancelling a quote on an existing thread just drops the form
+    wrap.appendChild(commentForm(db, target, { quote, offsets }, ctx.rerender, topLevel.length ? ctx.rerender : onClose));
+  } else {
+    const add = h("button", { className: "comment-link" }, "New comment");
+    add.addEventListener("click", () => {
+      const form = commentForm(db, target, {}, ctx.rerender, () => { form.replaceWith(add); layoutMarginThreads(); });
+      add.replaceWith(form);
+      form.querySelector("textarea").focus();
+      layoutMarginThreads();
+    });
+    wrap.appendChild(add);
   }
   return wrap;
 }
@@ -287,7 +295,11 @@ export function mountCommentToggle(db, target, buttonHost, panelParent = buttonH
     targetId: target.id,
     textEl: panelParent,
     get isOpen() { return !!panelHost.firstChild; },
-    open() { if (!entry.isOpen) panelHost.appendChild(buildPanel(db, target)); },
+    open(opts) {
+      if (entry.isOpen && !opts) return;
+      clear(panelHost);
+      panelHost.appendChild(buildPanel(db, target, panelHost, () => { entry.close(); layoutMarginThreads(); }, opts));
+    },
     close() { clear(panelHost); if (activeEntry === entry) setActive(null); },
   };
   panelHost.addEventListener("focusin", () => setActive(entry));
@@ -300,17 +312,9 @@ export function mountCommentToggle(db, target, buttonHost, panelParent = buttonH
   buttonHost.appendChild(toggle);
   panelParent.appendChild(panelHost);
   return { openWithQuote: (quote, offsets) => {
-    clear(panelHost);
-    if (!getReviewer()) { entry.open(); layoutMarginThreads(); return; }
-    const byParent = threadFor(target.id);
-    const topLevel = byParent.get("") || [];
-    const wrap = h("div", { className: "comment-panel" }, [
-      ...topLevel.map((c) => renderComment(db, c, byParent, panelHost, target)),
-      commentForm(db, target, { quote, offsets }, () => rerenderThread(db, panelHost, target)),
-    ]);
-    panelHost.appendChild(wrap);
+    entry.open({ quote, offsets });
     layoutMarginThreads();
     setActive(entry);
-    wrap.querySelector("textarea")?.focus();
+    panelHost.querySelector("textarea")?.focus();
   } };
 }
