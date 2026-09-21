@@ -16,7 +16,7 @@ export const CSV_URLS = {
 // Deploy > New deployment > Web app, then paste the /exec URL here. Enables posting new
 // comments and approving reviewers by email; read-only comment display and reviewer
 // sign-in fall back to REVIEWERS_CSV_URL / FEEDBACK_CSV_URL below when this is blank.
-export const APPS_SCRIPT_URL = "";
+export const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNnEJvA0dhsX7ohA_Zh31ZmnXdWN_2V_1-xzsgalWtSOw4cXimbBAMkhfyS3hPZwXB/exec";
 
 // Published CSVs for the two reviewer-workflow tabs the Apps Script backend normally
 // serves. Read-only: this is what lets sign-in and comment display work without the
@@ -33,7 +33,7 @@ export const REVIEWERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX
 export const FEEDBACK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2kpx_-WBCyOioIiXqwlxbWCKNU-YH6PtRQqIxada7OEfx0nEYvvkp_AkUJ6x2pOuycqw2Wzci6W0F/pub?gid=432450062&single=true&output=csv";
 
 // The Google Form owner-instructions step 4 creates for reviewer registration.
-export const REGISTRATION_FORM_URL = "";
+export const REGISTRATION_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSct8T65KoTsOp22jgXH9U3OD82kL_nwTdrxoQoYhSYqHwOh_g/viewform";
 
 export const SNAPSHOT_URL = "data/snapshot.json";
 
