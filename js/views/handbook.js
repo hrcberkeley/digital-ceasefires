@@ -2,7 +2,7 @@ import { h, sectionLabel } from "../utils.js";
 import { t as siteText } from "../data.js";
 import { resolveForReading } from "../tokens.js";
 import { buildTermMatcher, linkifyTerms } from "../terms.js";
-import { preloadComments, mountCommentToggle } from "../comments.js";
+import { preloadComments, mountCommentToggle, resetCommentToggles, setAllThreadsOpen, totalCommentCount, layoutMarginThreads } from "../comments.js";
 import { addProvision } from "../state.js";
 import { toast } from "../utils.js";
 
@@ -77,10 +77,8 @@ function renderProvisionBlock(provision, db, matcher) {
   actions.appendChild(addBtn);
   el.appendChild(actions);
 
-  const commentHost = h("div", { className: "cluster small" });
-  el.appendChild(commentHost);
   const target = { id: provision.provision_id, type: "provision" };
-  const { openWithQuote } = mountCommentToggle(db, target, commentHost);
+  const { openWithQuote } = mountCommentToggle(db, target, actions, el);
   selectionTargets.set(provision.provision_id, { el, openWithQuote });
 
   return el;
@@ -96,9 +94,10 @@ function renderDefinitionsSection(db, matcher) {
     const item = h("div", { className: "provision", id: `def-${def.definition_id}`, dataset: { targetId: def.definition_id } });
     item.appendChild(h("p", {}, [h("strong", {}, `${def.term}: `), h("span", { html: linkifyTerms(resolveForReading(def.text, db), db.definitions, defByTermMap(db), matcher) })]));
     if (def.footnote_ids) footnoteRefs(def.footnote_ids, db).forEach((r) => item.querySelector("p").appendChild(r));
-    const commentHost = h("div", { className: "cluster small" });
-    item.appendChild(commentHost);
-    mountCommentToggle(db, { id: def.definition_id, type: "definition" }, commentHost);
+    const actions = h("div", { className: "provision-actions" });
+    item.appendChild(actions);
+    const { openWithQuote } = mountCommentToggle(db, { id: def.definition_id, type: "definition" }, actions, item);
+    selectionTargets.set(def.definition_id, { el: item, openWithQuote });
     list.appendChild(item);
   }
   return list;
@@ -115,9 +114,10 @@ function renderLawClausesSection(db, matcher) {
     for (const clause of clauses) {
       const item = h("div", { className: "provision", id: `law-${clause.law_id}`, dataset: { targetId: clause.law_id } });
       item.appendChild(renderTextBlock(clause.text, clause.footnote_ids, db, matcher));
-      const commentHost = h("div", { className: "cluster small" });
-      item.appendChild(commentHost);
-      mountCommentToggle(db, { id: clause.law_id, type: "law_clause" }, commentHost);
+      const actions = h("div", { className: "provision-actions" });
+      item.appendChild(actions);
+      const { openWithQuote } = mountCommentToggle(db, { id: clause.law_id, type: "law_clause" }, actions, item);
+      selectionTargets.set(clause.law_id, { el: item, openWithQuote });
       wrap.appendChild(item);
     }
   }
@@ -196,7 +196,7 @@ function setupSelectionTrigger(root, db) {
       return;
     }
     const rect = sel.getRangeAt(0).getBoundingClientRect();
-    trigger.style.left = `${rect.left}px`;
+    trigger.style.left = `${rect.left + window.scrollX}px`;
     trigger.style.top = `${rect.top + window.scrollY - 36}px`;
     trigger.style.display = "block";
     trigger.onclick = () => {
@@ -211,11 +211,12 @@ function setupSelectionTrigger(root, db) {
 
 export async function renderHandbook({ mountEl, db, params }) {
   selectionTargets.clear();
+  resetCommentToggles();
   await preloadComments();
   const matcher = buildTermMatcher(db.definitions);
   const topSections = db.childSections("");
 
-  const toc = h("nav", { className: "toc", ariaLabel: "Handbook sections" }, renderToc(topSections, db, params.sectionId || null));
+  const toc = h("nav", { ariaLabel: "Handbook sections" }, renderToc(topSections, db, params.sectionId || null));
   const content = h("div", { className: "prose" });
   for (const s of topSections) content.appendChild(renderSection(s, db, matcher, 2));
   content.appendChild(renderFootnotesList(db));
@@ -223,7 +224,18 @@ export async function renderHandbook({ mountEl, db, params }) {
   attachDefinitionHoverCards(content, db);
   setupSelectionTrigger(content, db);
 
-  mountEl.appendChild(h("div", { className: "container section-pad grid-two" }, [toc, content]));
+  const total = totalCommentCount();
+  const showAll = h("button", { className: "btn btn-ghost btn-sm comments-toggle-all" });
+  let allOpen = total > 0; // open by default, like Google Docs
+  const syncShowAll = () => { showAll.textContent = allOpen ? "Hide all comments" : `Show all comments (${total})`; };
+  showAll.addEventListener("click", () => { allOpen = !allOpen; setAllThreadsOpen(allOpen); syncShowAll(); });
+  syncShowAll();
+
+  mountEl.appendChild(h("div", { className: "container section-pad grid-two handbook-layout" }, [
+    h("div", { className: "toc" }, [total ? showAll : null, toc]),
+    content,
+  ]));
+  if (allOpen) setAllThreadsOpen(true);
 
   if (params.sectionId) {
     document.getElementById(`sec-${params.sectionId}`)?.scrollIntoView({ behavior: "instant", block: "start" });

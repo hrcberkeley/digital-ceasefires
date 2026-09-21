@@ -197,11 +197,22 @@ button { font: inherit; }
 
 /* ---------- Comments (reviewer layer) ---------- */
 .comment-trigger {
-  position: fixed; display: none; background: var(--color-ink); color: #fff; border: none;
+  position: absolute; display: none; background: var(--color-ink); color: #fff; border: none;
   border-radius: var(--radius); padding: 6px 12px; font-size: 0.85rem; cursor: pointer; z-index: 40;
   box-shadow: var(--shadow-pop);
 }
-.comment-panel { border-left: 1px solid var(--color-border); padding-left: var(--space-5); }
+.comment-panel-host:not(:empty) { margin-top: var(--space-3); }
+::highlight(comment-quote) { background-color: rgba(230, 180, 40, 0.25); }
+::highlight(comment-quote-active) { background-color: rgba(230, 180, 40, 0.6); }
+.comment-panel-host.active .comment-panel { box-shadow: var(--shadow-pop); border-radius: var(--radius); }
+.comments-toggle-all { margin-bottom: var(--space-3); }
+/* Wide screens: threads live in a right-hand margin column, positioned by
+   layoutMarginThreads() in comments.js; the text column stays put. */
+@media (min-width: 1360px) {
+  .container.handbook-layout { max-width: 1480px; grid-template-columns: 240px minmax(0, 68ch) 1fr; }
+  .handbook-layout .comment-panel-host { position: absolute; top: 0; left: calc(100% + var(--space-5)); width: 300px; margin-top: 0; }
+  .handbook-layout .comment-panel-host:not(:empty) { background: var(--color-paper); }
+}
 .comment-thread { border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-3); margin-bottom: var(--space-3); }
 .comment-thread .comment-quote { font-size: 0.8rem; color: var(--color-ink-soft); border-left: 2px solid var(--color-border); padding-left: var(--space-2); margin-bottom: var(--space-2); }
 .comment-body { white-space: pre-wrap; margin: var(--space-2) 0; }

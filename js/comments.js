@@ -105,6 +105,7 @@ function replyToggle(db, parent, container, target) {
   btn.addEventListener("click", () => {
     const form = commentForm(db, target, { parentId: parent.comment_id }, () => rerenderThread(db, container, target));
     btn.replaceWith(form);
+    layoutMarginThreads();
   });
   return btn;
 }
@@ -166,6 +167,7 @@ function errorMessage(db, err) {
 function rerenderThread(db, container, target) {
   clear(container);
   container.appendChild(buildPanel(db, target));
+  layoutMarginThreads();
 }
 
 function buildPanel(db, target) {
@@ -191,34 +193,124 @@ function buildPanel(db, target) {
   return wrap;
 }
 
-/** Mounts a collapsible "N comments" toggle for one target (provision, definition,
- *  law clause, or section guidance). Call after preloadComments() has resolved. */
-export function mountCommentToggle(db, target, hostEl) {
+// Every mounted toggle, so "show/hide all" and the margin layout can reach them.
+const mounted = [];
+
+/** Stacks open threads in the right margin (Google Docs style): each sits level with
+ *  its paragraph, pushed down just enough not to overlap the one above. No-op when the
+ *  CSS has put threads back inline (narrow screens). */
+export function layoutMarginThreads() {
+  let prevBottom = -Infinity;
+  for (const m of mounted) {
+    const el = m.panelHost;
+    el.style.top = "";
+    if (!el.firstChild || getComputedStyle(el).position !== "absolute") continue;
+    const natural = el.getBoundingClientRect().top;
+    const top = Math.max(natural, prevBottom + 12);
+    el.style.top = `${top - natural}px`;
+    prevBottom = top + el.offsetHeight;
+  }
+  highlightQuotes();
+}
+
+let activeEntry = null;
+
+// Marks each open thread's quoted text in its paragraph with the CSS Custom Highlight
+// API (no DOM changes, so it can't break term links or selection offsets).
+function highlightQuotes() {
+  if (!window.CSS?.highlights) return; // ponytail: older browsers just skip the highlight
+  const normal = new Highlight(), active = new Highlight();
+  for (const m of mounted) {
+    if (!m.isOpen) continue;
+    for (const c of allComments.filter((c) => (c.target === m.targetId || c.target_id === m.targetId) && c.selected_text)) {
+      const range = findTextRange(m.textEl, c.selected_text);
+      if (range) (m === activeEntry ? active : normal).add(range);
+    }
+  }
+  CSS.highlights.set("comment-quote", normal);
+  CSS.highlights.set("comment-quote-active", active);
+}
+
+function findTextRange(root, needle) {
+  const nodes = [];
+  let text = "";
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: (n) => (n.parentElement.closest(".comment-panel-host, .provision-actions") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+  });
+  while (walker.nextNode()) { nodes.push([walker.currentNode, text.length]); text += walker.currentNode.data; }
+  const start = text.indexOf(needle.trim());
+  if (start < 0) return null;
+  const end = start + needle.trim().length;
+  const at = (pos) => { const [n, off] = nodes.findLast(([, o]) => o <= pos); return [n, pos - off]; };
+  const range = document.createRange();
+  range.setStart(...at(start));
+  range.setEnd(...at(end - 1));
+  range.setEnd(range.endContainer, range.endOffset + 1);
+  return range;
+}
+
+function setActive(entry) {
+  if (activeEntry === entry) return;
+  activeEntry?.panelHost.classList.remove("active");
+  activeEntry = entry;
+  entry?.panelHost.classList.add("active");
+  highlightQuotes();
+}
+window.addEventListener("resize", () => layoutMarginThreads());
+
+/** Forget the previous view's toggles; call at the start of each handbook render. */
+export function resetCommentToggles() {
+  mounted.length = 0;
+  activeEntry = null;
+}
+
+export function totalCommentCount() {
+  return mounted.reduce((n, m) => n + m.count, 0);
+}
+
+/** Opens every thread that has comments, or closes them all. */
+export function setAllThreadsOpen(open) {
+  for (const m of mounted) open && m.count ? m.open() : m.close();
+  layoutMarginThreads();
+}
+
+/** Mounts a "Comment" / "N comments" toggle for one target (provision, definition,
+ *  law clause, or section guidance) into buttonHost; its thread opens in panelParent
+ *  (the margin, via CSS). Call after preloadComments() has resolved. */
+export function mountCommentToggle(db, target, buttonHost, panelParent = buttonHost) {
   const count = (allComments || []).filter((c) => (c.target === target.id || c.target_id === target.id) && c.status !== "hidden").length;
   const toggle = h("button", { className: "btn btn-ghost btn-sm" }, count > 0 ? `${count} comment${count === 1 ? "" : "s"}` : t(db, "review.comment_button", "Comment"));
   const panelHost = h("div", { className: "comment-panel-host" });
-  let open = false;
+  const entry = {
+    count,
+    panelHost,
+    targetId: target.id,
+    textEl: panelParent,
+    get isOpen() { return !!panelHost.firstChild; },
+    open() { if (!entry.isOpen) panelHost.appendChild(buildPanel(db, target)); },
+    close() { clear(panelHost); if (activeEntry === entry) setActive(null); },
+  };
+  panelHost.addEventListener("focusin", () => setActive(entry));
+  panelHost.addEventListener("click", () => setActive(entry));
+  mounted.push(entry);
   toggle.addEventListener("click", () => {
-    open = !open;
-    if (open) {
-      panelHost.appendChild(buildPanel(db, target));
-    } else {
-      clear(panelHost);
-    }
+    entry.isOpen ? entry.close() : entry.open();
+    layoutMarginThreads();
   });
-  hostEl.appendChild(toggle);
-  hostEl.appendChild(panelHost);
+  buttonHost.appendChild(toggle);
+  panelParent.appendChild(panelHost);
   return { openWithQuote: (quote, offsets) => {
-    if (!open) { open = true; clear(panelHost); panelHost.appendChild(buildPanel(db, target)); }
-    if (getReviewer()) {
-      clear(panelHost);
-      const byParent = threadFor(target.id);
-      const topLevel = byParent.get("") || [];
-      const wrap = h("div", { className: "comment-panel" }, [
-        ...topLevel.map((c) => renderComment(db, c, byParent, panelHost, target)),
-        commentForm(db, target, { quote, offsets }, () => rerenderThread(db, panelHost, target)),
-      ]);
-      panelHost.appendChild(wrap);
-    }
+    clear(panelHost);
+    if (!getReviewer()) { entry.open(); layoutMarginThreads(); return; }
+    const byParent = threadFor(target.id);
+    const topLevel = byParent.get("") || [];
+    const wrap = h("div", { className: "comment-panel" }, [
+      ...topLevel.map((c) => renderComment(db, c, byParent, panelHost, target)),
+      commentForm(db, target, { quote, offsets }, () => rerenderThread(db, panelHost, target)),
+    ]);
+    panelHost.appendChild(wrap);
+    layoutMarginThreads();
+    setActive(entry);
+    wrap.querySelector("textarea")?.focus();
   } };
 }
