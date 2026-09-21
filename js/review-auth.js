@@ -32,11 +32,23 @@ export async function signInWithToken(token) {
   return reviewer;
 }
 
+// Base64 SHA-256, matching Apps Script's
+// Utilities.base64Encode(Utilities.computeDigest(SHA_256, s)) so both sides agree.
+// Check vector: "abc" -> "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0="
+async function sha256(s) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+
+// Anything "published to the web" is public, so the reviewers tab itself must never be:
+// publish a projection tab holding only token_hash + role for active reviewers. No email
+// (the site never needs one) and no raw token (it's the credential). See owner setup notes.
 async function lookupRoleFromSheet(token) {
   if (!REVIEWERS_CSV_URL) throw new ApiError("invalid_token");
   const res = await fetch(REVIEWERS_CSV_URL, { cache: "no-store" });
   if (!res.ok) throw new ApiError("invalid_token");
-  const match = parseCsv(await res.text()).find((r) => r.token === token && r.status === "active");
+  const hash = await sha256(token);
+  const match = parseCsv(await res.text()).find((r) => r.token_hash === hash);
   if (!match) throw new ApiError("invalid_token");
   return match.role;
 }

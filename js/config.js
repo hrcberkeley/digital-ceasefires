@@ -22,6 +22,13 @@ export const APPS_SCRIPT_URL = "";
 // serves. Read-only: this is what lets sign-in and comment display work without the
 // Apps Script web app deployed, but posting a new comment still needs APPS_SCRIPT_URL
 // above, since a published CSV can't be written to from the browser.
+//
+// IMPORTANT -- these must point at the `reviewers_public` / `feedback_public` tabs,
+// never the raw `reviewers` / `feedback` ones. "Publish to web" makes a tab readable by
+// anyone with the link, and the raw tabs hold reviewer emails and sign-in tokens. The
+// two _public tabs are one QUERY formula each (built by extract/build_workbook.py):
+// reviewers_public carries token_hash + role for active reviewers only, feedback_public
+// drops the token column. See README "Published tabs" for the setup steps.
 export const REVIEWERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=1646552475&single=true&output=csv";
 export const FEEDBACK_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRn8dsN7Ug5zHdTkldN4MkIhlVKxAzxM19iZx2znndO7YlWtaETTWDUUXJkhDske0dIFXLOMZbhf2Rl/pub?gid=955120672&single=true&output=csv";
 

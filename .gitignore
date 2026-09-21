@@ -1,2 +1,8 @@
 .DS_Store
 .claude/
+__pycache__/
+
+# Handbook working draft + internal PRD. This repo is public; these are the
+# pipeline's inputs, not its outputs, and the extracted content is already
+# published via data/*.csv and data/snapshot.json. Keep local backups.
+source/

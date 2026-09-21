@@ -1,0 +1,7 @@
+option_id,label,choices,default,help
+o-context,Context,Armed Conflict|Grey Zone Activity|Internal Disturbance,Armed Conflict,
+o-upon-signature-of-the,upon signature of the Agreement,upon signature of the Agreement|on DATE at TIME|upon the following conditions|at a date and time decided by the Monitoring Commission,upon signature of the Agreement,
+o-indefinitely,indefinitely,"indefinitely|for a PERIOD OF TIME from the effective date, unless extended by mutual consent of all Parties",indefinitely,
+o-entity,entity,entity|entities,entity,
+o-verified,verified,verified|and/or potential,verified,
+o-mediators,mediators,mediators|witnesses|assisting in the implementation and monitoring of the Agreement,mediators,

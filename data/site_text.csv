@@ -1,0 +1,69 @@
+key,text,notes
+site.title,Digital Ceasefire Platform,Browser tab title / header
+nav.home,Home,
+nav.handbook,Handbook,
+nav.builder,Build an Agreement,
+nav.updates,Updates,
+home.hero_title,Digital Ceasefire & Deescalation Handbook,
+home.hero_subtitle,"A working framework mediators, negotiators, and conflict parties can use to negotiate and draft the Digital components of ceasefire and deescalation agreements.",
+home.cta_read,Read the Handbook,Button to /handbook
+home.cta_build,Build an Agreement,Button to /builder
+home.cta_review,Become a Reviewer,Button to registration form
+home.category_internet_interference,Internet Interference,"One of the three prohibited-operations categories, shown on Home"
+home.category_internet_interference.desc,"Shutdowns, attacks on infrastructure, and jamming that cut people off from the internet.",
+home.category_information_threats,Information Threats,
+home.category_information_threats.desc,"Disinformation, hate speech, incitement, doxxing, and manipulated media used to escalate conflict.",
+home.category_cyber_attacks,Cyber Attacks,
+home.category_cyber_attacks.desc,"Hacking, malware, DDoS, phishing, and surveillance directed at people and infrastructure.",
+roles,NGO / civil society|Lawyer / legal scholar|Technical expert|Mediator / negotiator|Government|International organization|Academic|Other,"Fixed reviewer role list, pipe-separated, used by the registration form and role badges"
+context.armed_conflict.example,e.g. an international or non-international Armed Conflict under International Humanitarian Law.,One-line example shown under the Armed Conflict option in Builder step 1
+context.grey_zone.example,e.g. coercive or destabilizing activity below the threshold of Armed Conflict.,Builder step 1
+context.internal_disturbance.example,"e.g. serious internal disorder, such as riots, that does not amount to Armed Conflict.",Builder step 1
+builder.step1_title,What kind of situation is this agreement for?,
+builder.step1_help,This sets which provisions are suggested first. You can change it later in Settings.,
+builder.start_empty,Start empty instead,
+builder.continue,Continue,
+builder.library_title,Provision library,
+builder.library_search_placeholder,Search provisions...,
+builder.agreement_title,Your agreement,
+builder.add_button,Add to my agreement,Button in the handbook reader and the library
+builder.added_badge,Added,
+builder.suggested_badge,Suggested for this context,
+builder.edited_badge,Edited,
+builder.restore_original,Restore original text,
+builder.remove,Remove,
+builder.add_custom_provision,Add a custom provision,
+builder.add_custom_definition,Add a custom definition,
+builder.pin,Pin,Keep an auto-attached definition/law clause even if unused
+builder.unpin,Unpin,
+builder.settings,Settings,
+builder.parties_label,Parties,Settings panel: list of party names filling [Party A] etc.
+builder.entry_into_force_label,Entry into force,
+builder.saved_indicator,Saved,
+builder.new_draft,New draft,
+builder.export_docx,Export as Word (.docx),
+builder.export_markdown,Export as Markdown,
+builder.export_print,Print / Save as PDF,
+builder.include_footnotes,Include footnotes,Export toggle
+builder.export_signature_block,Signatures,Export section heading
+builder.export_definitions_heading,Definitions,
+builder.export_annex_heading,Annex on Commitment to International Law,
+builder.undefined_terms_warning,These capitalized terms are used in your agreement but have no definition:,
+builder.context_change_confirm_title,Change context?,
+builder.context_change_confirm_body,"Add this context's suggested provisions and remove unedited suggestions from the old one? Anything you edited, pinned, or added by hand stays.",
+review.comment_button,Comment,
+review.reply_button,Reply,
+review.reviewing_as,Reviewing as,"e.g. ""Reviewing as Lawyer / legal scholar"""
+review.sign_out,Sign out,
+review.comment_removed,Comment removed,Shown in place of a hidden parent comment
+review.comment_on_earlier_version,This comment was left on an earlier version of this text.,
+review.filter_open_only,Open threads only,
+review.register_title,Become a reviewer,
+review.register_pending,Thanks -- we'll email you once your reviewer access is approved.,
+error.rate_limited,You're commenting faster than we can keep up. Try again in a minute.,Maps to Apps Script code rate_limited
+error.invalid_token,Your reviewer link has expired or been revoked. Ask an admin to resend it.,Maps to code invalid_token
+error.body_too_long,"That comment is too long (4,000 characters max).",Maps to code body_too_long
+error.selection_too_long,Please select a shorter passage to comment on.,Maps to code selection_too_long
+error.network,Couldn't reach the server. Your comment hasn't been posted -- try again.,
+footer.data_source,Content is maintained by the Digital Ceasefire Initiative and updates automatically.,
+footer.disclaimer,This tool assembles model language for discussion. It is not legal advice.,
