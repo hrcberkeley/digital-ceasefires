@@ -70,6 +70,29 @@ function onRegistration(e) {
   ]);
 }
 
+/**
+ * Run by hand (select it in the editor toolbar, then Run) to add `registrations`
+ * rows the trigger never saw -- e.g. submissions made before the trigger existed,
+ * or while it was failing. Skips emails already in `reviewers`, so it's safe to
+ * run any number of times.
+ */
+function importMissedRegistrations() {
+  const regSheet = getSheet(TAB_REGISTRATIONS);
+  const [headers, ...rows] = regSheet.getDataRange().getValues();
+  const known = new Set(readRows(getSheet(TAB_REVIEWERS), REVIEWERS_COLUMNS).map((r) => String(r.email).trim().toLowerCase()));
+  let added = 0;
+  rows.forEach((row) => {
+    const namedValues = {};
+    headers.forEach((h, i) => { namedValues[String(h).trim()] = [String(row[i])]; });
+    const email = String(firstValue(namedValues["Email Address"] || namedValues["Email"]) || "").trim().toLowerCase();
+    if (!email || known.has(email)) return;
+    onRegistration({ namedValues });
+    known.add(email);
+    added += 1;
+  });
+  Logger.log(`Imported ${added} missed registration(s).`);
+}
+
 /** Matches the browser's sha256() in js/review-auth.js, so a token hashed here
  *  and a token hashed there produce the same string.
  *  Check vector: "abc" -> "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=" */
