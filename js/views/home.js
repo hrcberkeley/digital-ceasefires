@@ -8,24 +8,30 @@ export function renderHome({ mountEl, db }) {
     ["/updates", "nav.updates", "Updates", "home.cta_updates.desc", "See the latest posts, news and updates to the Platform."],
   ];
 
+  // Title set as three staggered lines, AFfacts-style; chunks follow word count so sheet edits still work.
+  const words = t(db, "home.hero_title", "Digital Ceasefire & De-escalation Handbook").split(" ");
+  const per = Math.ceil(words.length / 3);
+  const lines = [];
+  for (let i = 0; i < words.length; i += per) lines.push(words.slice(i, i + per).join(" "));
+
   mountEl.appendChild(
     h("div", { className: "container" }, [
       h("section", { className: "hero" }, [
-        h("p", { className: "eyebrow" }, t(db, "home.eyebrow", "Human Rights Center · Digital Ceasefire Initiative")),
-        h("h1", {}, t(db, "home.hero_title", "Digital Ceasefire & De-escalation Handbook")),
-        h("p", {}, t(db, "home.hero_subtitle", "A practical framework for mediators, negotiators, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict and other security contexts.")),
-        h("div", { className: "hero-ctas" }, [
-          h("a", { className: "btn btn-primary", href: "#/builder" }, t(db, "home.cta_build", "Build an Agreement")),
-          h("a", { className: "btn", href: "#/handbook" }, t(db, "home.cta_read", "Read the Handbook")),
+        h("h1", {}, lines.map((line) => h("span", {}, line))),
+        h("div", { className: "hero-intro" }, [
+          h("p", { className: "eyebrow" }, t(db, "home.eyebrow", "Human Rights Center · Digital Ceasefire Initiative")),
+          h("p", { className: "hero-lede" }, t(db, "home.hero_subtitle", "A practical framework for mediators, negotiators, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict and other security contexts.")),
         ]),
       ]),
       h(
-        "div",
-        { className: "category-grid" },
-        options.map(([path, labelKey, labelFallback, descKey, descFallback]) =>
-          h("a", { className: "category-card", href: `#${path}` }, [
-            h("h3", {}, t(db, labelKey, labelFallback)),
-            h("p", { className: "muted" }, t(db, descKey, descFallback)),
+        "nav",
+        { className: "home-rows", "aria-label": "Start here" },
+        options.map(([path, labelKey, labelFallback, descKey, descFallback], i) =>
+          h("a", { className: "home-row", href: `#${path}` }, [
+            h("span", { className: "home-row__num" }, String(i + 1)),
+            h("span", { className: "home-row__title" }, t(db, labelKey, labelFallback)),
+            h("span", { className: "home-row__desc" }, t(db, descKey, descFallback)),
+            h("span", { className: "home-row__arrow", "aria-hidden": "true" }, "→"),
           ])
         )
       ),
