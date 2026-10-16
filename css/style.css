@@ -47,6 +47,7 @@ body {
   background: var(--color-paper);
   line-height: 1.55;
   overflow-x: clip;
+  display: flex; flex-direction: column; min-height: 100dvh;
 }
 h1, h2, h3, h4 { font-family: var(--font-serif); line-height: 1.2; margin: 0 0 var(--space-3); }
 h1 { font-size: 2rem; }
@@ -117,7 +118,7 @@ button { font: inherit; }
 .badge-custom { background: #e6e9f5; color: #3d3f8f; }
 
 /* ---------- Layout helpers ---------- */
-.view { min-height: 60vh; position: relative; isolation: isolate; }
+.view { flex: 1; min-height: 60vh; position: relative; isolation: isolate; }
 /* fixed so it takes no space: a route may scroll to an anchor before the router removes it */
 .loading {
   position: fixed; top: 50%; left: 50%; translate: -50% -50%;
@@ -185,6 +186,18 @@ button { font: inherit; }
 .home-row:hover .home-row__arrow, .home-row:focus-visible .home-row__arrow { transform: translateX(6px); }
 @media (prefers-reduced-motion: reduce) { .home-row__title, .home-row__arrow { transition: none; } }
 @media (hover: none) { .home-row__title { color: var(--color-ink); -webkit-text-stroke: 0; } }
+/* Home fits one screen: body is min 100dvh (flex column), hero takes the slack, type scales with height too */
+body:has(.home) .view { display: flex; min-height: 0; }
+body:has(.home) .site-footer { margin-top: 0; }
+.home { flex: 1; display: flex; flex-direction: column; width: 100%; }
+.home .hero { flex: 1; min-height: 0; padding: clamp(var(--space-3), 4vh, var(--space-7)) 0; }
+.home .hero h1 { font-size: clamp(1.5rem, min(3.9vw, 7vh), 3.5rem); }
+.home .hero-lede { font-size: clamp(0.95rem, 2.4vh, 1.2rem); }
+.home .home-rows { margin-bottom: clamp(var(--space-3), 3vh, var(--space-6)); }
+.home .home-row { padding: clamp(var(--space-2), 2.2vh, var(--space-5)) 0; }
+.home .home-row__title { font-size: clamp(1.2rem, min(3.6vw, 5.5vh), 2.8rem); }
+.home .home-row__num { font-size: clamp(1.4rem, 4vh, 2.2rem); }
+.home .home-row__desc { font-size: clamp(0.85rem, 2vh, 1.05rem); }
 
 /* ---------- Handbook reader ---------- */
 .toc { position: sticky; top: 72px; align-self: start; max-height: calc(100vh - 96px); overflow-y: auto; }
@@ -323,10 +336,13 @@ button { font: inherit; }
 .toast-error { background: var(--color-accent); }
 
 /* ---------- Footer ---------- */
-.site-footer { position: relative; isolation: isolate; border-top: 1px solid var(--color-border); padding: var(--space-6) 0; color: var(--color-ink-soft); font-size: 0.85rem; margin-top: var(--space-7); }
-.site-footer .container { display: flex; flex-direction: column; gap: var(--space-1); }
-.site-footer__logo { display: inline-block; margin-bottom: var(--space-4); }
-.site-footer__logo img { display: block; height: 40px; width: auto; }
+.site-footer { position: relative; isolation: isolate; border-top: 1px solid var(--color-border); padding: var(--space-4) 0; color: var(--color-ink-soft); font-size: 0.8rem; margin-top: var(--space-7); }
+/* one row: wordmark left, the two notes stacked right; wraps under on narrow screens */
+.site-footer .container { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-6); }
+.site-footer__logo { display: block; }
+.site-footer__logo img { display: block; height: 32px; width: auto; max-width: 100%; }
+.site-footer__text { text-align: right; }
+.site-footer__text p { margin: 0; }
 
 /* ---------- Responsive: single column below 768px, builder switches to tap-to-add ---------- */
 @media (max-width: 768px) {
@@ -338,6 +354,14 @@ button { font: inherit; }
   .home-row { grid-template-columns: 2.2rem 1fr; gap: var(--space-2) var(--space-3); }
   .home-row__desc { grid-column: 2; }
   .home-row__arrow { display: none; }
+  /* phone home: titles alone carry the rows so the whole page fits a screen */
+  .home .home-row__desc { display: none; }
+  .home .home-row { align-items: center; }
+  .home .hero { gap: var(--space-3); }
+  .home .hero-lede { font-size: 0.95rem; }
+  .home .home-rows { margin-bottom: var(--space-3); }
+  .site-footer__text { text-align: left; }
+  .site-footer .container { gap: var(--space-2); }
   .context-choice-grid { grid-template-columns: 1fr; }
   .site-header__inner { flex-wrap: wrap; }
   .site-header { position: static; } /* wrapped nav is ~150px: too tall to pin on a phone */

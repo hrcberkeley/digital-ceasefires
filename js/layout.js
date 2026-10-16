@@ -47,8 +47,10 @@ export function renderFooter(db) {
     h("div", { className: "container" }, [
       h("a", { className: "site-footer__logo", href: "https://humanrights.berkeley.edu/", target: "_blank", rel: "noopener" },
         h("img", { src: "data/hrc-wordmark.png", alt: "Human Rights Center, UC Berkeley School of Law", width: 689, height: 91 })),
-      h("p", {}, t(db, "footer.data_source", "")),
-      h("p", {}, t(db, "footer.disclaimer", "")),
+      h("div", { className: "site-footer__text" }, [
+        h("p", {}, t(db, "footer.data_source", "")),
+        h("p", {}, t(db, "footer.disclaimer", "")),
+      ]),
     ])
   );
   signalField(canvas, { alpha: 0.06, packets: 2 });

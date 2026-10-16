@@ -18,7 +18,7 @@ export function renderHome({ mountEl, db }) {
   const canvas = h("canvas", { className: "signal-field", "aria-hidden": "true" });
 
   mountEl.appendChild(
-    h("div", { className: "container" }, [
+    h("div", { className: "container home" }, [
       h("section", { className: "hero" }, [
         canvas,
         h("h1", {}, lines.map((line) => h("span", {}, line))),
