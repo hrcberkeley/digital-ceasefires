@@ -1,4 +1,4 @@
-import { h, clear, toast, openModal, sectionLabel, NON_BUILDER_SECTION_IDS } from "../utils.js";
+import { h, clear, toast, openModal, sectionLabel, renderMarkdown, NON_BUILDER_SECTION_IDS } from "../utils.js";
 import { t as siteText } from "../data.js";
 import { resolveForReading, resolveForAgreement, resolvePartyPlaceholders, optionIdsIn } from "../tokens.js";
 import { findUndefinedCapitalizedTerms } from "../terms.js";
@@ -13,68 +13,15 @@ export function renderBuilder({ mountEl, db }) {
   const root = h("div", { className: "container section-pad" });
   mountEl.appendChild(root);
 
-  const ui = { showSettings: false, editingId: null, search: "", categoryFilter: "all" };
+  // `open` remembers which library sections are expanded, so adding a provision
+  // (which redraws everything) doesn't fold the section you're browsing shut.
+  const ui = { showSettings: false, editingId: null, search: "", open: new Set() };
 
   const draw = () => {
     clear(root);
-    const draft = state.getActiveDraft();
-    if (!draft.context) mountStep1(root, db, draw);
-    else mountWorkspace(root, db, draft, ui, draw);
+    mountWorkspace(root, db, state.getActiveDraft(), ui, draw);
   };
   unsubscribe = state.subscribe(draw);
-  draw();
-}
-
-// ---------------------------------------------------------------------------
-// Step 1: choose a context
-// ---------------------------------------------------------------------------
-
-function mountStep1(root, db, redraw) {
-  let picked = null;
-  const wrap = h("div", { className: "stack" });
-  root.appendChild(wrap);
-
-  function draw() {
-    clear(wrap);
-    if (!picked) {
-      wrap.appendChild(h("h1", {}, siteText(db, "builder.step1_title", "What kind of situation is this agreement for?")));
-      wrap.appendChild(h("p", { className: "muted" }, siteText(db, "builder.step1_help", "")));
-      const grid = h("div", { className: "context-choice-grid" });
-      for (const code of ["ac", "gz", "id"]) {
-        const label = state.CONTEXT_LABELS[code];
-        // the defined term for grey zone is just "Grey Zone", not "Grey Zone Activity"
-        const def = db.definitions.find((d) => d.term === (code === "gz" ? "Grey Zone" : label));
-        const exampleKey = { ac: "context.armed_conflict.example", gz: "context.grey_zone.example", id: "context.internal_disturbance.example" }[code];
-        grid.appendChild(
-          h("button", { className: "context-choice", onClick: () => { picked = code; draw(); } }, [
-            h("h3", {}, label),
-            def ? h("p", { className: "small muted" }, truncate(resolveForReading(def.text, db), 160)) : null,
-            h("p", { className: "small" }, siteText(db, exampleKey, "")),
-          ])
-        );
-      }
-      wrap.appendChild(grid);
-    } else {
-      const matches = db.provisions.filter((p) => (p.preselect_for || "").split("|").includes(picked));
-      const bySection = groupBy(matches, (p) => p.section_id);
-      wrap.appendChild(h("h2", {}, `${matches.length} provisions suggested for ${state.CONTEXT_LABELS[picked]}`));
-      const list = h(
-        "ul",
-        { className: "summary-list" },
-        [...bySection.entries()].map(([sid, items]) => {
-          const section = db.byId.sections.get(sid);
-          return h("li", {}, [h("strong", {}, section ? sectionLabel(section) : sid), ` — ${items.length}`]);
-        })
-      );
-      wrap.appendChild(list);
-      wrap.appendChild(
-        h("div", { className: "cluster" }, [
-          h("button", { className: "btn btn-primary", onClick: () => { state.setInitialContext(picked, db); redraw(); } }, siteText(db, "builder.continue", "Continue")),
-          h("button", { className: "btn btn-ghost", onClick: () => { state.setContextOnly(picked); redraw(); } }, siteText(db, "builder.start_empty", "Start empty instead")),
-        ])
-      );
-    }
-  }
   draw();
 }
 
@@ -83,6 +30,7 @@ function mountStep1(root, db, redraw) {
 // ---------------------------------------------------------------------------
 
 function mountWorkspace(root, db, draft, ui, redraw) {
+  root.appendChild(renderIntro(db, draft, ui, redraw));
   root.appendChild(renderHeader(db, draft, ui, redraw));
   if (ui.showSettings) root.appendChild(renderSettingsPanel(db, draft, redraw));
 
@@ -116,6 +64,46 @@ function mountWorkspace(root, db, draft, ui, redraw) {
   root.appendChild(shell);
 }
 
+const NOTE_TO_USERS_HREF = "#/handbook/s-note-to-users";
+const BUILDER_SECTION_IDS = (db) => new Set(db.sections.filter((s) => !NON_BUILDER_SECTION_IDS.has(s.section_id)).map((s) => s.section_id));
+
+function renderIntro(db, draft, ui, redraw) {
+  const wrap = h("div", { className: "builder-intro stack no-print" }, [
+    h("div", { className: "note-banner", html: renderMarkdown(siteText(db, "builder.note_banner", `**Read this first:** the [Note to Users](${NOTE_TO_USERS_HREF}) explains how the Handbook's provisions fit together and how to adapt them.`)) }),
+    h("details", { className: "builder-intro-text", open: !draft.provisions.length }, [
+      h("summary", {}, h("h1", {}, siteText(db, "builder.intro_title", "Build Your Own Agreement"))),
+      h("div", { className: "prose", html: renderMarkdown(siteText(db, "builder.intro", BUILDER_INTRO_FALLBACK)) }),
+    ]),
+  ]);
+  if (!draft.provisions.length) {
+    wrap.appendChild(
+      h("div", { className: "cluster" }, [
+        button(siteText(db, "builder.start_scratch", "Build from scratch"), () => document.querySelector(".search-input")?.focus(), "btn-primary"),
+        button(siteText(db, "builder.start_full", "Start with the full Agreement"), () => { state.addEverything(db, BUILDER_SECTION_IDS(db)); redraw(); }),
+      ])
+    );
+  }
+  return wrap;
+}
+
+const BUILDER_INTRO_FALLBACK = `Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](${NOTE_TO_USERS_HREF}) before you begin.
+
+To get started, choose one of two approaches:
+
+- **Build from scratch:** Select the provisions you wish to include from the left-hand column and add them to your Agreement in the right-hand column.
+- **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then remove those that are not relevant.
+
+Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
+
+Your Agreement is saved automatically in this browser, and you can come back to it at any time. You will find your saved Agreements in the Drafts box at the top left of the builder.
+
+You can download your Agreement in various formats: Word, Markdown and PDF.
+
+A few things to note:
+
+- Terms that are defined will be included in the Definitions section, which you can add to.
+- Relevant footnotes will also be included in the final Agreement.`;
+
 function renderHeader(db, draft, ui, redraw) {
   const drafts = state.listDrafts();
   const select = h(
@@ -125,19 +113,22 @@ function renderHeader(db, draft, ui, redraw) {
   );
 
   const exportMenu = h("div", { className: "cluster" }, [
-    button(siteText(db, "builder.export_docx", "Export as Word (.docx)"), () => downloadDocx(db, draft, { includeFootnotes: false }).catch((e) => toast(e.message, "error"))),
-    button(siteText(db, "builder.export_markdown", "Export as Markdown"), () => downloadMarkdown(db, draft, { includeFootnotes: false })),
+    button(siteText(db, "builder.export_docx", "Export as Word (.docx)"), () => downloadDocx(db, draft).catch((e) => toast(e.message, "error"))),
+    button(siteText(db, "builder.export_markdown", "Export as Markdown"), () => downloadMarkdown(db, draft)),
     button(siteText(db, "builder.export_print", "Print / Save as PDF"), () => window.print()),
   ]);
 
-  return h("div", { className: "stack", style: "margin-bottom: var(--space-5);" }, [
+  return h("div", { className: "stack no-print", style: "margin-bottom: var(--space-5);" }, [
     h("div", { className: "cluster", style: "justify-content: space-between;" }, [
       h("div", { className: "cluster" }, [
+        h("label", { className: "small muted" }, siteText(db, "builder.drafts_label", "Drafts")),
         select,
         button(siteText(db, "builder.new_draft", "New draft"), () => { state.newDraft(); redraw(); }),
         h("span", { className: "small muted" }, siteText(db, "builder.saved_indicator", "Saved")),
       ]),
       h("div", { className: "cluster" }, [
+        h("label", { className: "small muted" }, siteText(db, "context.label", "Context")),
+        contextSelect(db, draft),
         button(siteText(db, "builder.settings", "Settings"), () => { ui.showSettings = !ui.showSettings; redraw(); }),
       ]),
     ]),
@@ -149,17 +140,6 @@ function renderSettingsPanel(db, draft, redraw) {
   const panel = h("div", { className: "settings-panel stack" });
 
   panel.appendChild(h("h3", {}, siteText(db, "builder.settings", "Settings")));
-
-  // Context
-  panel.appendChild(
-    h("div", { className: "field-row" }, [
-      h("label", {}, siteText(db, "context.label", "Context")),
-      h("div", { className: "cluster" }, [
-        h("span", {}, state.CONTEXT_LABELS[draft.context]),
-        button("Change", () => openContextChangeModal(db, draft, redraw)),
-      ]),
-    ])
-  );
 
   // Parties
   const partiesField = h("div", { className: "field-row" }, [h("label", {}, siteText(db, "builder.parties_label", "Parties"))]);
@@ -230,28 +210,19 @@ function renderSettingsPanel(db, draft, redraw) {
   return panel;
 }
 
-function openContextChangeModal(db, draft, redraw) {
-  const options = ["ac", "gz", "id"].filter((c) => c !== draft.context);
-  let target = options[0];
-  const select = h("select", { className: "text-input" }, options.map((c) => h("option", { value: c }, state.CONTEXT_LABELS[c])));
-  select.addEventListener("change", () => { target = select.value; });
-
-  const close = openModal({
-    title: siteText(db, "builder.context_change_confirm_title", "Change context?"),
-    body: [h("p", {}, siteText(db, "builder.context_change_confirm_body", "")), select],
-    actions: [
-      button("Cancel", () => close(), "btn-ghost"),
-      button(
-        "Change context",
-        () => {
-          state.applyContextChange(target, db);
-          close();
-          redraw();
-        },
-        "btn-primary"
-      ),
-    ],
-  });
+// Context only fills the [Armed Conflict] [Grey Zone Activity] [Internal Disturbance]
+// wording and flags which International Law clauses are suggested -- it never adds provisions.
+function contextSelect(db, draft) {
+  const select = h(
+    "select",
+    { className: "text-input", style: "width:auto;", title: siteText(db, "builder.context_help", "Fills the context wording in your Agreement and suggests relevant International Law commitments.") },
+    [
+      h("option", { value: "", selected: !draft.context }, siteText(db, "builder.context_none", "Not specified")),
+      ...Object.entries(state.CONTEXT_LABELS).map(([code, label]) => h("option", { value: code, selected: draft.context === code }, label)),
+    ]
+  );
+  select.addEventListener("change", () => state.setContext(select.value));
+  return select;
 }
 
 // ---------------------------------------------------------------------------
@@ -259,7 +230,7 @@ function openContextChangeModal(db, draft, redraw) {
 // ---------------------------------------------------------------------------
 
 function renderLibraryPane(db, draft, ui, redraw) {
-  const pane = h("div", { className: "builder-pane" });
+  const pane = h("div", { className: "builder-pane library-pane no-print" });
   pane.appendChild(h("div", { className: "builder-pane-header" }, [h("h2", {}, siteText(db, "builder.library_title", "Provision library"))]));
 
   const search = h("input", { className: "search-input", type: "search", placeholder: siteText(db, "builder.library_search_placeholder", "Search provisions..."), value: ui.search });
@@ -272,41 +243,87 @@ function renderLibraryPane(db, draft, ui, redraw) {
   });
   pane.appendChild(search);
 
-  const list = h("div", {});
   const q = ui.search.trim().toLowerCase();
-  const topSections = db.childSections("").filter((s) => !NON_BUILDER_SECTION_IDS.has(s.section_id));
-
-  for (const section of topSections) {
-    const rows = collectLibraryRows(section, db, q);
-    if (!rows.length) continue;
-    const details = h("details", { className: "library-section", open: !!q });
-    details.appendChild(h("summary", {}, sectionLabel(section)));
-    for (const p of rows) {
-      details.appendChild(renderLibraryItem(p, db, draft, redraw));
-    }
-    list.appendChild(details);
+  const list = h("div", { className: "library-list" });
+  for (const section of db.childSections("")) {
+    if (NON_BUILDER_SECTION_IDS.has(section.section_id)) continue;
+    const node = renderLibrarySection(section, db, draft, ui, redraw, q);
+    if (node) list.appendChild(node);
   }
+  const annex = renderLawLibrary(db, draft, ui, redraw, q);
+  if (annex) list.appendChild(annex);
   pane.appendChild(list);
   return pane;
 }
 
-function collectLibraryRows(section, db, query) {
-  const all = [section, ...descendantSections(section, db)];
-  const rows = all.flatMap((s) => db.provisionsOf(s.section_id));
-  if (!query) return rows;
-  return rows.filter((p) => p.text.toLowerCase().includes(query));
+// One <details> per Handbook section, nested like the Handbook (3.0 > 3.1 > 3.1.1),
+// with the section's guidance text and its own provisions above its subsections.
+function renderLibrarySection(section, db, draft, ui, redraw, q) {
+  const own = db.provisionsOf(section.section_id).filter((p) => !q || p.text.toLowerCase().includes(q));
+  const children = db.childSections(section.section_id).map((c) => renderLibrarySection(c, db, draft, ui, redraw, q)).filter(Boolean);
+  if (!own.length && !children.length) return null;
+
+  const details = libraryDetails(section.section_id, sectionLabel(section), ui, q);
+  if (section.guidance && !q) {
+    details.appendChild(h("details", { className: "library-guidance" }, [
+      h("summary", {}, siteText(db, "builder.section_guidance", "Note to Users for this section")),
+      ...section.guidance.split("\n\n").map((para) => h("p", { className: "small" }, para)),
+    ]));
+  }
+  for (const p of own) details.appendChild(renderLibraryItem(p, db, draft, redraw));
+  for (const c of children) details.appendChild(c);
+  return details;
 }
 
-function descendantSections(section, db) {
-  const children = db.childSections(section.section_id);
-  return children.flatMap((c) => [c, ...descendantSections(c, db)]);
+function libraryDetails(id, label, ui, q) {
+  const details = h("details", { className: "library-section", open: !!q || ui.open.has(id) }, [h("summary", {}, label)]);
+  details.addEventListener("toggle", (e) => {
+    if (e.target !== details) return; // nested <details> bubble their own toggles
+    details.open ? ui.open.add(id) : ui.open.delete(id);
+  });
+  return details;
+}
+
+const LAW_GROUP_ORDER = ["International Law", "IHL", "ICL", "IHRL"];
+
+// Commitments to International Law: added by pinning, since attached law clauses
+// already render (and export) as the Annex.
+function renderLawLibrary(db, draft, ui, redraw, q) {
+  const annex = db.byId.sections.get("s-11.0");
+  const details = libraryDetails("s-11.0", annex ? sectionLabel(annex) : "Annex on Commitment to International Law", ui, q);
+  let any = false;
+  for (const group of LAW_GROUP_ORDER) {
+    const clauses = db.lawClauses.filter((c) => c.group === group && (!q || c.text.toLowerCase().includes(q)));
+    if (!clauses.length) continue;
+    any = true;
+    details.appendChild(h("h4", { className: "library-subhead" }, group));
+    for (const c of clauses) {
+      const added = draft.pinned.includes(c.law_id);
+      const suggested = state.isSuggestedLawClause(c);
+      const acOnly = c.applies_to === "ac";
+      const full = resolveForReading(c.text, db);
+      details.appendChild(
+        h("div", { className: `library-item ${added ? "in-agreement" : ""}`, title: full }, [
+          h("div", {}, [
+            suggested && !added ? h("span", { className: "badge badge-suggested" }, siteText(db, "builder.suggested_badge", "Suggested for this context")) : null,
+            acOnly && !suggested ? h("span", { className: "badge" }, siteText(db, "builder.ac_only_badge", "Armed Conflict only")) : null,
+            h("p", {}, truncate(full, 140)),
+          ]),
+          added
+            ? button("✓", () => { state.unpinItem(c.law_id); redraw(); }, "btn-sm badge-added")
+            : button("+", () => { state.pinItem(c.law_id); redraw(); }, "btn-sm"),
+        ])
+      );
+    }
+  }
+  return any ? details : null;
 }
 
 function renderLibraryItem(provision, db, draft, redraw) {
   const inAgreement = draft.provisions.some((e) => e.id === provision.provision_id);
-  const outsideContext = draft.context && provision.applies_to && !provision.applies_to.split("|").includes(draft.context);
-  const item = h("div", { className: `library-item ${inAgreement ? "in-agreement" : ""} ${outsideContext ? "outside-context" : ""}` }, [
-    h("p", {}, truncate(resolveForReading(provision.text, db), 140)),
+  const full = resolveForReading(provision.text, db);
+  const item = h("div", { className: `library-item ${inAgreement ? "in-agreement" : ""}`, title: full }, [
+    h("p", {}, truncate(full, 140)),
     inAgreement
       ? h("span", { className: "badge badge-added" }, "✓")
       : button("+", () => { state.addProvision(provision.provision_id); redraw(); }, "btn-sm"),
@@ -319,7 +336,7 @@ function renderLibraryItem(provision, db, draft, redraw) {
 // ---------------------------------------------------------------------------
 
 function renderAgreementPane(db, draft, redraw) {
-  const pane = h("div", { className: "builder-pane" });
+  const pane = h("div", { className: "builder-pane agreement-pane" });
   pane.appendChild(
     h("div", { className: "builder-pane-header" }, [
       h("h2", {}, siteText(db, "builder.agreement_title", "Your agreement")),
@@ -327,39 +344,28 @@ function renderAgreementPane(db, draft, redraw) {
     ])
   );
 
-  const bySection = groupBy(
-    draft.provisions.filter((e) => !e.custom),
-    (e) => db.byId.provisions.get(e.id)?.section_id
-  );
-  const customBySection = groupBy(
-    draft.provisions.filter((e) => e.custom),
-    (e) => e.sectionId
-  );
-  const allSectionIds = new Set([...bySection.keys(), ...customBySection.keys()]);
-  const sections = [...allSectionIds]
-    .map((id) => db.byId.sections.get(id))
-    .filter(Boolean)
-    .sort((a, b) => Number(a.order) - Number(b.order));
-
-  if (!sections.length) {
-    pane.appendChild(h("p", { className: "muted" }, "Nothing added yet -- browse the library on the left."));
+  if (draft.provisions.length) {
+    pane.appendChild(h("p", { className: "small muted no-print" }, siteText(db, "builder.reorder_hint", "Drag or use ↑ ↓ to reorder provisions within a section.")));
   }
 
-  for (const section of sections) {
-    pane.appendChild(h("h3", {}, sectionLabel(section)));
+  const bySection = groupBy(draft.provisions, (e) => (e.custom ? e.sectionId : db.byId.provisions.get(e.id)?.section_id));
+  const outline = state.agreementOutline(db);
+
+  if (!outline.length) {
+    pane.appendChild(h("p", { className: "muted" }, siteText(db, "builder.empty_agreement", "Nothing added yet -- browse the library on the left.")));
+  }
+
+  for (const { section, number, depth } of outline) {
+    pane.appendChild(h(`h${Math.min(3 + depth, 5)}`, { className: "agreement-heading" }, `${number}. ${section.title}`));
+    const entries = (bySection.get(section.section_id) || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    if (!entries.length) continue;
     const group = h("div", { className: "section-group", dataset: { sectionId: section.section_id } });
-    const entries = [...(bySection.get(section.section_id) || []), ...(customBySection.get(section.section_id) || [])].sort(
-      (a, b) => (a.order ?? 0) - (b.order ?? 0)
-    );
     entries.forEach((entry, i) => group.appendChild(renderAgreementItem(entry, db, draft, redraw, entries, i)));
     pane.appendChild(group);
     if (window.Sortable) {
       window.Sortable.create(group, {
         animation: 150,
-        onEnd: () => {
-          const ids = [...group.children].map((el) => el.dataset.entryId);
-          state.reorderWithinSection(ids);
-        },
+        onEnd: () => state.reorderWithinSection([...group.children].map((el) => el.dataset.entryId)),
       });
     }
   }
@@ -394,7 +400,6 @@ function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
 
   const badges = [];
   if (entry.custom) badges.push(h("span", { className: "badge badge-custom" }, "Custom"));
-  if (entry.addedVia === "context" && !entry.edited) badges.push(h("span", { className: "badge badge-suggested" }, siteText(db, "builder.suggested_badge", "Suggested for this context")));
   if (entry.edited) badges.push(h("span", { className: "badge badge-edited" }, siteText(db, "builder.edited_badge", "Edited")));
 
   const item = h("div", { className: "agreement-item", dataset: { entryId: entry.id } });
@@ -407,6 +412,7 @@ function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
   item.appendChild(textHost);
 
   const actions = h("div", { className: "cluster small" });
+  actions.appendChild(button(siteText(db, "builder.edit", "Edit"), () => startEditing(item, textHost, entry, db, draft, redraw), "btn-ghost btn-sm"));
   if (!entry.custom && entry.text != null) {
     actions.appendChild(button(siteText(db, "builder.restore_original", "Restore original text"), () => { state.restoreProvisionText(entry.id); redraw(); }, "btn-ghost btn-sm"));
   }
@@ -417,8 +423,10 @@ function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
 }
 
 function moveButtons(siblings, index, db, redraw) {
-  const up = h("button", { className: "btn btn-ghost btn-sm", disabled: index === 0, ariaLabel: "Move up" }, "↑");
-  const down = h("button", { className: "btn btn-ghost btn-sm", disabled: index === siblings.length - 1, ariaLabel: "Move down" }, "↓");
+  const up_label = siteText(db, "builder.move_up", "Move up within this section");
+  const down_label = siteText(db, "builder.move_down", "Move down within this section");
+  const up = h("button", { className: "btn btn-ghost btn-sm", disabled: index === 0, title: up_label, ariaLabel: up_label }, "↑");
+  const down = h("button", { className: "btn btn-ghost btn-sm", disabled: index === siblings.length - 1, title: down_label, ariaLabel: down_label }, "↓");
   up.addEventListener("click", () => {
     const ids = siblings.map((s) => s.id);
     [ids[index - 1], ids[index]] = [ids[index], ids[index - 1]];
@@ -438,26 +446,29 @@ function startEditing(item, textHost, entry, db, draft, redraw) {
   clear(textHost);
   const provision = entry.custom ? null : db.byId.provisions.get(entry.id);
   const currentRaw = entry.text ?? provision?.text ?? "";
-  const textarea = h("textarea", {}, currentRaw);
-  const save = button("Save", () => {
-    if (entry.custom) {
-      entry.text = textarea.value;
-    } else {
-      state.editProvisionText(entry.id, textarea.value);
-    }
-    redraw();
-  }, "btn-primary btn-sm");
+  const textarea = editor(currentRaw);
+  const save = button("Save", () => { state.editProvisionText(entry.id, textarea.value); redraw(); }, "btn-primary btn-sm");
   const cancel = button("Cancel", () => redraw(), "btn-ghost btn-sm");
   textHost.appendChild(textarea);
   textHost.appendChild(h("div", { className: "cluster", style: "margin-top:6px;" }, [save, cancel]));
   textarea.focus();
 }
 
+function editor(raw) {
+  return h("textarea", { style: "width:100%;", rows: Math.min(20, Math.max(4, Math.ceil(raw.length / 90) + 1)) }, raw);
+}
+
 function renderAttachedItem(id, label, text, kind, requiredBy, db, draft, redraw, isCustom = false) {
   const pinned = draft.pinned.includes(id);
-  const item = h("div", { className: "agreement-item" }, [
+  const isDef = kind === "definitions";
+  const edited = isDef && !isCustom && draft.definitionEdits?.[id] != null;
+  if (edited) text = draft.definitionEdits[id];
+  const item = h("div", { className: "agreement-item" });
+  if (edited) item.appendChild(h("div", { className: "agreement-item-head" }, h("span", { className: "badge badge-edited" }, siteText(db, "builder.edited_badge", "Edited"))));
+  const textHost = h("div", {}, [
     h("p", {}, [h("strong", {}, `${label}: `), resolvePartyPlaceholders(resolveForAgreement(text, db, draft.optionSelections), draft.parties)]),
   ]);
+  item.appendChild(textHost);
   const chipRow = h("div", { className: "chip-row" });
   if (requiredBy) {
     for (const provId of requiredBy) {
@@ -467,6 +478,21 @@ function renderAttachedItem(id, label, text, kind, requiredBy, db, draft, redraw
   }
   item.appendChild(chipRow);
   const actions = h("div", { className: "cluster small" });
+  if (isDef) {
+    const startEdit = () => {
+      clear(textHost);
+      const textarea = editor(text);
+      textHost.appendChild(textarea);
+      textHost.appendChild(h("div", { className: "cluster", style: "margin-top:6px;" }, [
+        button("Save", () => { state.editDefinitionText(id, textarea.value); redraw(); }, "btn-primary btn-sm"),
+        button("Cancel", () => redraw(), "btn-ghost btn-sm"),
+      ]));
+      textarea.focus();
+    };
+    textHost.addEventListener("dblclick", startEdit);
+    actions.appendChild(button(siteText(db, "builder.edit", "Edit"), startEdit, "btn-ghost btn-sm"));
+    if (edited) actions.appendChild(button(siteText(db, "builder.restore_original", "Restore original text"), () => { state.restoreDefinitionText(id); redraw(); }, "btn-ghost btn-sm"));
+  }
   if (isCustom) {
     actions.appendChild(button("Remove", () => {
       const d = state.getActiveDraft();

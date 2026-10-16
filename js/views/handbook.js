@@ -1,13 +1,10 @@
-import { h, sectionLabel } from "../utils.js";
+import { h, sectionLabel, renderMarkdown } from "../utils.js";
+import { HANDBOOK_PDF_URL } from "../config.js";
 import { t as siteText } from "../data.js";
 import { resolveForReading } from "../tokens.js";
 import { buildTermMatcher, linkifyTerms } from "../terms.js";
-import { preloadComments, mountCommentToggle, resetCommentToggles, setAllThreadsOpen, totalCommentCount, layoutMarginThreads } from "../comments.js";
 import { addProvision } from "../state.js";
 import { toast } from "../utils.js";
-
-const selectionTargets = new Map(); // targetId -> { el, openWithQuote, plainText }
-let selectionListenerController = null; // torn down/recreated each mount -- see setupSelectionTrigger
 
 // Both float with position:fixed but are appended inside the view's own root
 // (not document.body) so the router's clear(mountEl) removes them for free when
@@ -65,8 +62,9 @@ function defByTermMap(db) {
 }
 
 function renderProvisionBlock(provision, db, matcher) {
-  const el = h("div", { className: "provision", id: `prov-${provision.provision_id}`, dataset: { targetId: provision.provision_id } });
+  const el = h("div", { className: "provision", id: `prov-${provision.provision_id}` });
   el.appendChild(renderTextBlock(provision.text, provision.footnote_ids, db, matcher));
+  if (provision.section_id === "s-note-to-users") return el; // guidance, not agreement text
 
   const actions = h("div", { className: "provision-actions" });
   const addBtn = h("button", { className: "btn btn-sm btn-primary" }, siteText(db, "builder.add_button", "Add to my agreement"));
@@ -77,11 +75,18 @@ function renderProvisionBlock(provision, db, matcher) {
   actions.appendChild(addBtn);
   el.appendChild(actions);
 
-  const target = { id: provision.provision_id, type: "provision" };
-  const { openWithQuote } = mountCommentToggle(db, target, actions, el);
-  selectionTargets.set(provision.provision_id, { el, openWithQuote });
-
   return el;
+}
+
+// The PDF link is a placeholder (#handbook-pdf) in the Markdown: it points at
+// HANDBOOK_PDF_URL once that's set, and reads as plain text until then.
+function renderIntro(db) {
+  const intro = h("div", { className: "handbook-intro", html: renderMarkdown(siteText(db, "handbook.intro", HANDBOOK_INTRO_FALLBACK)) });
+  for (const a of intro.querySelectorAll('a[href="#handbook-pdf"]')) {
+    if (HANDBOOK_PDF_URL) Object.assign(a, { href: HANDBOOK_PDF_URL, target: "_blank", rel: "noopener" });
+    else a.replaceWith(document.createTextNode(a.textContent));
+  }
+  return intro;
 }
 
 function headingTag(depth) {
@@ -91,17 +96,17 @@ function headingTag(depth) {
 function renderDefinitionsSection(db, matcher) {
   const list = h("div", { className: "stack" });
   for (const def of db.definitions) {
-    const item = h("div", { className: "provision", id: `def-${def.definition_id}`, dataset: { targetId: def.definition_id } });
+    const item = h("div", { className: "provision", id: `def-${def.definition_id}` });
     item.appendChild(h("p", {}, [h("strong", {}, `${def.term}: `), h("span", { html: linkifyTerms(resolveForReading(def.text, db), db.definitions, defByTermMap(db), matcher) })]));
     if (def.footnote_ids) footnoteRefs(def.footnote_ids, db).forEach((r) => item.querySelector("p").appendChild(r));
-    const actions = h("div", { className: "provision-actions" });
-    item.appendChild(actions);
-    const { openWithQuote } = mountCommentToggle(db, { id: def.definition_id, type: "definition" }, actions, item);
-    selectionTargets.set(def.definition_id, { el: item, openWithQuote });
     list.appendChild(item);
   }
   return list;
 }
+
+// The reader intro is one Markdown row in site_text (handbook.intro); this is the
+// same text, used only if that row is missing.
+const HANDBOOK_INTRO_FALLBACK = `The full text of the Digital Ceasefire & De-escalation Handbook is available here, section by section, or it can be downloaded in full in [PDF format](#handbook-pdf). The Handbook guides users through the process of developing an Agreement, either by selecting appropriate provisions of the Handbook into an Agreement or by using the Platform's [Build an Agreement function](#/builder). We recommend starting with reading the [Note to Users](#/handbook/s-note-to-users) below. Sections 1.0 through 11.0 then provide model provisions that can be selected, adapted, and combined to construct an Agreement tailored to different conflict and security contexts.`;
 
 const LAW_GROUP_ORDER = ["International Law", "IHL", "ICL", "IHRL"];
 
@@ -112,12 +117,8 @@ function renderLawClausesSection(db, matcher) {
     if (!clauses.length) continue;
     wrap.appendChild(h("h3", {}, group));
     for (const clause of clauses) {
-      const item = h("div", { className: "provision", id: `law-${clause.law_id}`, dataset: { targetId: clause.law_id } });
+      const item = h("div", { className: "provision", id: `law-${clause.law_id}` });
       item.appendChild(renderTextBlock(clause.text, clause.footnote_ids, db, matcher));
-      const actions = h("div", { className: "provision-actions" });
-      item.appendChild(actions);
-      const { openWithQuote } = mountCommentToggle(db, { id: clause.law_id, type: "law_clause" }, actions, item);
-      selectionTargets.set(clause.law_id, { el: item, openWithQuote });
       wrap.appendChild(item);
     }
   }
@@ -174,68 +175,22 @@ function renderFootnotesList(db) {
   ]);
 }
 
-function setupSelectionTrigger(root, db) {
-  // document-level listener outlives this view's own DOM, so it needs its own
-  // explicit teardown -- abort the previous mount's listener before adding a new one.
-  selectionListenerController?.abort();
-  selectionListenerController = new AbortController();
-
-  const trigger = h("button", { className: "comment-trigger" }, siteText(db, "review.comment_button", "Comment"));
-  root.appendChild(trigger);
-
-  document.addEventListener("selectionchange", () => {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed || !root.contains(sel.anchorNode)) {
-      trigger.style.display = "none";
-      return;
-    }
-    const container = sel.anchorNode.parentElement?.closest("[data-target-id]");
-    const focusContainer = sel.focusNode.parentElement?.closest("[data-target-id]");
-    if (!container || container !== focusContainer) {
-      trigger.style.display = "none";
-      return;
-    }
-    const rect = sel.getRangeAt(0).getBoundingClientRect();
-    trigger.style.left = `${rect.left + window.scrollX}px`;
-    trigger.style.top = `${rect.top + window.scrollY - 36}px`;
-    trigger.style.display = "block";
-    trigger.onclick = () => {
-      const text = sel.toString().trim();
-      const targetId = container.dataset.targetId;
-      const entry = selectionTargets.get(targetId);
-      trigger.style.display = "none";
-      if (entry) entry.openWithQuote(text, {});
-    };
-  }, { signal: selectionListenerController.signal });
-}
-
-export async function renderHandbook({ mountEl, db, params }) {
-  selectionTargets.clear();
-  resetCommentToggles();
-  await preloadComments();
+export function renderHandbook({ mountEl, db, params }) {
   const matcher = buildTermMatcher(db.definitions);
   const topSections = db.childSections("");
 
   const toc = h("nav", { ariaLabel: "Handbook sections" }, renderToc(topSections, db, params.sectionId || null));
   const content = h("div", { className: "prose" });
+  content.appendChild(renderIntro(db));
   for (const s of topSections) content.appendChild(renderSection(s, db, matcher, 2));
   content.appendChild(renderFootnotesList(db));
 
   attachDefinitionHoverCards(content, db);
-  setupSelectionTrigger(content, db);
-
-  const total = totalCommentCount();
-  const showAll = h("button", { className: "btn btn-ghost btn-sm comments-toggle-all" });
-  let allOpen = total > 0; // open by default, like Google Docs
-  const syncShowAll = () => { showAll.textContent = allOpen ? "Hide all comments" : `Show all comments (${total})`; };
-  showAll.addEventListener("click", () => { allOpen = !allOpen; setAllThreadsOpen(allOpen); syncShowAll(); });
-  syncShowAll();
 
   mountEl.appendChild(h("div", { className: "container section-pad grid-two handbook-layout" }, [
-    h("div", { className: "toc" }, [total ? showAll : null, toc]),
+    h("div", { className: "toc" }, [toc]),
     content,
   ]));
-  if (allOpen) setAllThreadsOpen(true);
 
   if (params.sectionId) {
     document.getElementById(`sec-${params.sectionId}`)?.scrollIntoView({ behavior: "instant", block: "start" });

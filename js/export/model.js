@@ -1,7 +1,7 @@
 // Shared traversal that both export/markdown.js and export/docx.js format
 // differently, so "what's in the export and in what order" is defined once.
 import { resolveForAgreement, resolvePartyPlaceholders } from "../tokens.js";
-import { getAttachments, CONTEXT_LABELS } from "../state.js";
+import { getAttachments, agreementOutline, CONTEXT_LABELS } from "../state.js";
 import { pipeList } from "../utils.js";
 
 function finalText(entry, db, draft) {
@@ -27,30 +27,30 @@ export function buildExportModel(db, draft) {
   }
 
   const usedFootnotes = new Map();
-  const sections = [...bySection.keys()]
-    .map((id) => db.byId.sections.get(id))
-    .filter(Boolean)
-    .sort((a, b) => Number(a.order) - Number(b.order))
-    .map((section) => ({
-      title: `${section.number} ${section.title}`,
-      items: bySection
-        .get(section.section_id)
-        .map((entry, i) => ({ order: entry.order ?? i, text: finalText(entry, db, draft), footnoteIds: footnoteIdsOf(entry, db) }))
-        .sort((a, b) => a.order - b.order)
-        .map((x) => {
-          for (const fid of x.footnoteIds) {
-            const fn = db.byId.footnotes.get(fid);
-            if (fn) usedFootnotes.set(fid, fn);
-          }
-          return x;
-        }),
-    }));
+  // Every used section plus its ancestors, renumbered 1, 1.1, 2 ... (no gaps for skipped
+  // sections). Provisions are lettered (a), (b) so they never collide with subsection numbers.
+  const sections = agreementOutline(db).map(({ section, number, depth }) => ({
+    sectionId: section.section_id,
+    number,
+    title: section.title,
+    depth,
+    items: (bySection.get(section.section_id) || [])
+      .map((entry, i) => ({ order: entry.order ?? i, text: finalText(entry, db, draft), footnoteIds: footnoteIdsOf(entry, db) }))
+      .sort((a, b) => a.order - b.order)
+      .map((x, i) => {
+        for (const fid of x.footnoteIds) {
+          const fn = db.byId.footnotes.get(fid);
+          if (fn) usedFootnotes.set(fid, fn);
+        }
+        return { ...x, label: `(${letterLabel(i)})` };
+      }),
+  }));
 
   const defRows = [...definitions]
     .map((id) => db.byId.definitions.get(id))
     .filter(Boolean)
     .concat(draft.customDefinitions)
-    .map((d) => ({ term: d.term, text: resolvePartyPlaceholders(resolveForAgreement(d.text, db, draft.optionSelections), draft.parties) }))
+    .map((d) => ({ term: d.term, text: resolvePartyPlaceholders(resolveForAgreement(draft.definitionEdits?.[d.definition_id] ?? d.text, db, draft.optionSelections), draft.parties) }))
     .sort((a, b) => a.term.localeCompare(b.term));
 
   const lawRows = [...lawClauses]
@@ -65,8 +65,15 @@ export function buildExportModel(db, draft) {
     contextLabel: draft.context ? CONTEXT_LABELS[draft.context] : "",
     parties,
     sections,
+    // the Handbook's own 10.0 Signatures provisions replace the generic block
+    genericSignatures: !sections.some((s) => s.sectionId === "s-10.0"),
     definitions: defRows,
     lawClauses: lawRows,
     footnotes: [...usedFootnotes.values()],
   };
+}
+
+/** 0 -> a, 25 -> z, 26 -> aa */
+export function letterLabel(i) {
+  return i < 26 ? String.fromCharCode(97 + i) : letterLabel(Math.floor(i / 26) - 1) + String.fromCharCode(97 + (i % 26));
 }

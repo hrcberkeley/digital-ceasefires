@@ -1,10 +1,10 @@
 # Digital Ceasefire Platform
 
-Static site + one Apps Script backend for the HRC Digital Ceasefire & Deescalation
+Static site for the HRC Digital Ceasefire & Deescalation
 Handbook (working draft v1.4). Built from `Digital Ceasefire Platform PRD and Build
 Handoff.pdf`. This file is the map of what exists and what you still need to do on
-the Google side (nothing here can create a Google Sheet or Apps Script deployment
-for you — that needs your own account).
+the Google side (nothing here can create a Google Sheet for you — that needs your
+own account).
 
 ## Layout
 
@@ -13,104 +13,39 @@ index.html      The static site lives at the repo root, so GitHub Pages serves i
 css/ js/        as-is with no build step and no Pages source setting to change.
 data/           snapshot.json (shipped with the site) + generated CSVs + diff_report.md
 extract/        Python extraction pipeline (handbook -> CSVs)
-apps-script/    Code.gs -- paste into the Sheet's Apps Script editor
 source/         Handbook draft + PRD. GITIGNORED: this repo is public. Back these up.
-Digital Ceasefire Platform.xlsx   All 13 tabs combined, ready to upload to Drive
+Digital Ceasefire Platform.xlsx   All 8 tabs combined, ready to upload to Drive
 ```
 
-Everything lives in one repo: the site, the pipeline that generates its data, and
-the Apps Script that depends on both. They change together, so splitting them meant
-the pipeline and `Code.gs` were unversioned. The extra folders don't affect Pages —
-it serves the root and ignores the rest. Only `source/` is held back, because a
-public repo is the wrong place for a working draft.
+The extra folders don't affect Pages — it serves the root and ignores the rest.
+Only `source/` is held back, because a public repo is the wrong place for a working
+draft.
 
 The site works today with **no Google account at all** — it reads
 `data/snapshot.json`, a bundled copy of the extracted content. Once you wire
-up the Sheet and Apps Script (below), it switches to live data automatically.
+up the Sheet (below), it switches to live data automatically.
 
 ## What's done vs. what needs your Google account
 
 Everything that's pure code is built and tested (in a local browser, against the
-bundled snapshot). Three things genuinely can't be done without your own Google
-account, so they're implemented and ready but unverified end-to-end:
-
-- Publishing the Sheet's CSVs and pointing `js/config.js` at them
-- The registration Google Form + Apps Script deployment
-- Sending real reviewer emails
+bundled snapshot). Publishing the Sheet's CSVs and pointing `js/config.js` at them
+needs your own Google account, so it is unverified end-to-end.
 
 ## One-time setup (do this once, ~1 hour, matches PRD section 10)
 
 1. **Create the spreadsheet.** In your HRC Workspace account, create a sheet named
    `Digital Ceasefire Platform`. Import `Digital Ceasefire Platform.xlsx` (File >
-   Import > Replace spreadsheet) — this creates all thirteen tabs with the right
-   columns and the extracted v1.4 content already in the eight content ones.
-2. **Publish the seven content tabs.** File > Share > Publish to web, pick each
+   Import > Replace spreadsheet) — this creates the eight tabs with the right
+   columns and the extracted v1.4 content.
+2. **Publish the eight content tabs.** File > Share > Publish to web, pick each
    tab individually (`site_text`, `sections`, `provisions`, `options`,
    `definitions`, `law_clauses`, `footnotes`, `posts` — that's eight, the PRD's
    table just groups posts separately), format **CSV**, publish, copy each URL.
-   Also publish `reviewers_public` and `feedback_public` (see "Published tabs"
-   below). **Never publish** `registrations`, `reviewers`, or `feedback`.
-3. **Paste those URLs into `js/config.js`** — `CSV_URLS` for the eight content tabs,
-   `REVIEWERS_CSV_URL` / `FEEDBACK_CSV_URL` for the two `_public` ones, plus
-   `REGISTRATION_FORM_URL` once step 4 is done and `APPS_SCRIPT_URL` once step 8
-   is done. Redeploy the static site after editing this file.
-4. **Create the Google Form** (Email + Role, both required; optional "why do you
-   want to review" question). Role dropdown options should match `site_text`'s
-   `roles` row: NGO / civil society, Lawyer / legal scholar, Technical expert,
-   Mediator / negotiator, Government, International organization, Academic,
-   Other. Turn off "Require sign-in." Under Responses, link to the spreadsheet,
-   rename the new tab to `registrations`.
-5. **Add checkboxes** in `reviewers`: select the `approved` and `resend` columns,
-   Insert > Checkbox.
-6. **Add the script.** Extensions > Apps Script, paste `apps-script/Code.gs`. Set
-   `SITE_URL` at the top of the file to wherever you host the site (e.g. your
-   GitHub Pages URL).
-7. **Create the triggers** (clock icon > Add trigger — not the `onEdit`/`onFormSubmit`
-   simple-trigger names, since those can't send email): `onRegistration` from
-   spreadsheet, on form submit; `onReviewerEdit` from spreadsheet, on edit.
-   Authorize when asked.
-8. **Deploy the web app.** Deploy > New deployment > Web app, execute as
-   yourself, who has access: Anyone. Copy the `/exec` URL into `config.js`'s
-   `APPS_SCRIPT_URL`. After any future code change: Deploy > Manage deployments
-   > Edit > New version (the URL keeps serving old code otherwise).
-9. **Test with your own email**: submit the form, tick `approved`, open the
-   emailed link, post a comment, check it lands in `feedback`.
+3. **Paste those URLs into `js/config.js`** (`CSV_URLS`). Redeploy the static site
+   after editing this file.
 
-Day to day: approve reviewers by ticking `approved`; hide a comment by setting
-its `status` to `hidden`; revoke access by setting a reviewer's `status` to
-`revoked`; edit handbook text and blog posts directly in the tabs (changes
+Day to day: edit handbook text and blog posts directly in the tabs (changes
 appear on the site within about 5 minutes — Google's own publish delay).
-
-## Published tabs (why there are two `_public` ones)
-
-"Publish to web" makes a tab readable by **anyone with the link** — there is no
-token, no expiry, and no way to un-share it retroactively. So the site never reads
-`reviewers` or `feedback` directly: those hold reviewer emails and the sign-in
-tokens themselves, and publishing a list of tokens hands out working credentials.
-
-Two projection tabs stand in, each one `QUERY` formula in A1 (created by
-`build_workbook.py`, so re-running it keeps them in sync with the column order):
-
-- `reviewers_public` — `token_hash` and `role`, active reviewers only. No email
-  (the site never needs one) and no raw token.
-- `feedback_public` — every comment field except `token`.
-
-Sign-in still works because the reviewer already holds their token, from the link
-`sendReviewLink()` emailed them. The browser hashes it (`sha256()` in
-`js/review-auth.js`) and matches that against `token_hash`, which `onRegistration()`
-wrote with the identical `sha256Base64()` in `Code.gs`. Possession is proven without
-the published list ever being a set of usable credentials.
-
-This is only safe because tokens are `Utilities.getUuid()` — 122 bits. A short or
-predictable token would still be brute-forceable from its hash, so don't swap that
-generator for something friendlier-looking.
-
-Encrypting the emails instead would not work: a static site has nowhere to keep a
-key, so anything it can decrypt, a reader can decrypt too. Not publishing the column
-is the only real fix.
-
-Revoking access: set a reviewer's `status` to anything but `active` and their row
-drops out of `reviewers_public` at Google's next publish refresh (~5 min).
 
 ## Re-running extraction for a new handbook version
 
@@ -143,9 +78,6 @@ future version only ships as `.docx`/PDF, export it to markdown the same way
   calls about what's "recommended" beyond the obvious core. `applies_to`
   defaults to all three contexts unless the text signals it's IHL/Armed-Conflict
   specific. Both are ordinary Sheet cells — edit them any time, no redeploy needed.
-- **Comment layer** is inline under each provision/definition/law clause rather
-  than a single detached sidebar — same information, avoids a "what's the
-  current item" synchronization problem, and works the same on mobile.
 - **Bracket-alternative detection** treats the three-way `[Armed Conflict]
   [Grey Zone Activity] [Internal Disturbance]` pattern as a single reusable
   `o-context` option everywhere it appears, and skips signature-block fill-in
@@ -163,9 +95,7 @@ future version only ships as `.docx`/PDF, export it to markdown the same way
 ## Open questions for the drafters (from the PRD, still open)
 
 - Who curates `requires_law`, and by when?
-- Final role list for reviewers (I used the PRD's draft list).
-- Which Google account owns the Sheet and sends emails?
-- Is the review round tied to v1.4, or do comments carry over to the final text?
+- Which Google account owns the Sheet?
 - Can one agreement cover mixed contexts? v1 assumes a single choice, per the PRD.
 
 ## Issues found in the v1.4 source text

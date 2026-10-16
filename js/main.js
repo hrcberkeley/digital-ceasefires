@@ -2,10 +2,10 @@ import { loadData } from "./data.js";
 import { route, notFound, start } from "./router.js";
 import { renderHeader, renderFooter } from "./layout.js";
 import { renderHome } from "./views/home.js";
+import { renderAbout } from "./views/about.js";
 import { renderHandbook } from "./views/handbook.js";
 import { renderBuilder } from "./views/builder.js";
 import { renderUpdatesList, renderUpdatePost } from "./views/updates.js";
-import { renderRegister, renderReviewSignIn } from "./views/review.js";
 import { h } from "./utils.js";
 
 let db;
@@ -32,9 +32,8 @@ async function boot() {
   route("/handbook/:sectionId", withDb(renderHandbook));
   route("/builder", withDb(renderBuilder));
   route("/updates", withDb(renderUpdatesList));
+  route("/about", withDb(renderAbout));
   route("/updates/:id", withDb(renderUpdatePost));
-  route("/review/register", withDb(renderRegister));
-  route("/review", withDb(renderReviewSignIn));
   notFound(({ mountEl }) => mountEl.appendChild(h("div", { className: "container section-pad" }, h("p", {}, "Page not found."))));
 
   mountChrome();

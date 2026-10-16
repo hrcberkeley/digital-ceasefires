@@ -17,6 +17,8 @@ export function resolveForAgreement(text, db, selections) {
   return text.replace(TOKEN_RE, (_, optionId) => {
     const opt = db.byId.options.get(optionId);
     if (!opt) return "";
+    // no context picked yet: keep the Handbook's bracketed alternatives for the drafter to resolve
+    if (optionId === "o-context" && !selections?.[optionId]) return pipeList(opt.choices).map((c) => `[${c}]`).join(" ");
     return selections?.[optionId] ?? opt.default;
   });
 }

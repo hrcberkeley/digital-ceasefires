@@ -1,15 +1,15 @@
 import { buildExportModel } from "./model.js";
 
-export function draftToMarkdown(db, draft, { includeFootnotes = false } = {}) {
+export function draftToMarkdown(db, draft, { includeFootnotes = true } = {}) {
   const model = buildExportModel(db, draft);
   const lines = [`# ${model.title}`, ""];
   if (model.contextLabel) lines.push(`**Context:** ${model.contextLabel}`, "");
   if (model.parties.length) lines.push(`**Parties:** ${model.parties.join(", ")}`, "");
 
   for (const section of model.sections) {
-    lines.push(`## ${section.title}`, "");
+    lines.push(`${"#".repeat(section.depth + 2)} ${section.number}. ${section.title}`, "");
     for (const item of section.items) {
-      lines.push(item.text + footnoteMarks(item.footnoteIds, includeFootnotes), "");
+      lines.push(`${item.label} ${item.text}` + footnoteMarks(item.footnoteIds, includeFootnotes), "");
     }
   }
 
@@ -31,9 +31,11 @@ export function draftToMarkdown(db, draft, { includeFootnotes = false } = {}) {
     lines.push("");
   }
 
-  lines.push("## Signatures", "");
-  for (const party of model.parties.length ? model.parties : ["Party A", "Party B"]) {
-    lines.push(`For ${party}: ________________________`, "");
+  if (model.genericSignatures) {
+    lines.push("## Signatures", "");
+    for (const party of model.parties.length ? model.parties : ["Party A", "Party B"]) {
+      lines.push(`For ${party}: ________________________`, "");
+    }
   }
 
   if (includeFootnotes && model.footnotes.length) {

@@ -1,7 +1,7 @@
 // The builder's state: one serializable object per draft, mutated only through
 // the named actions below (PRD "Technical rules"), autosaved to localStorage
 // debounced to 1s. Multiple named drafts share one store, one active at a time.
-import { debounce, uid } from "./utils.js";
+import { debounce, uid, pipeList } from "./utils.js";
 import { computeAttachments } from "./attach.js";
 
 const STORAGE_KEY = "ceasefire:builder:v1";
@@ -19,7 +19,6 @@ function freshDraft(name = "Draft 1") {
     provisions: [], // { id, custom, sectionId, text, edited, addedVia }
     customDefinitions: [], // { id, term, text }
     pinned: [], // definition_id / law_id kept even if unreferenced
-    dismissedSuggestions: [], // provision ids removed from a context's preselect list
     updatedAt: Date.now(),
   };
 }
@@ -101,7 +100,6 @@ export function addProvision(provisionId, { addedVia = "manual" } = {}) {
   const draft = getActiveDraft();
   if (draft.provisions.some((p) => p.id === provisionId)) return;
   draft.provisions.push({ id: provisionId, custom: false, text: null, edited: false, addedVia, order: nextOrder(draft) });
-  draft.dismissedSuggestions = draft.dismissedSuggestions.filter((id) => id !== provisionId);
   touch(draft);
 }
 
@@ -129,9 +127,6 @@ export function removeProvision(provisionId) {
   const entry = draft.provisions.find((p) => p.id === provisionId);
   if (!entry) return;
   draft.provisions = draft.provisions.filter((p) => p.id !== provisionId);
-  if (entry.addedVia === "context" && !entry.custom) {
-    draft.dismissedSuggestions.push(provisionId);
-  }
   touch(draft);
 }
 
@@ -150,6 +145,23 @@ export function restoreProvisionText(provisionId) {
   if (!entry || entry.custom) return;
   entry.text = null;
   entry.edited = false;
+  touch(draft);
+}
+
+export function editDefinitionText(id, text) {
+  const draft = getActiveDraft();
+  const custom = draft.customDefinitions.find((c) => c.id === id);
+  if (custom) custom.text = text;
+  else {
+    (draft.definitionEdits ??= {})[id] = text; // old drafts lack this field
+    if (!draft.pinned.includes(id)) draft.pinned.push(id); // keep it if its provision is removed
+  }
+  touch(draft);
+}
+
+export function restoreDefinitionText(id) {
+  const draft = getActiveDraft();
+  if (draft.definitionEdits) delete draft.definitionEdits[id];
   touch(draft);
 }
 
@@ -196,64 +208,56 @@ export function setParties(parties) {
   touch(draft);
 }
 
-// The {{o-context}} token is just another option, but it must always track
-// draft.context rather than the option's own static default -- otherwise
-// picking Grey Zone/Internal Disturbance would still export "Armed Conflict".
-function setContextFields(draft, contextCode) {
-  draft.context = contextCode;
-  draft.optionSelections["o-context"] = CONTEXT_LABELS[contextCode];
+// The {{o-context}} token tracks draft.context; with no context picked it's left
+// unset so the agreement keeps the Handbook's bracketed alternatives.
+export function setContext(contextCode) {
+  const draft = getActiveDraft();
+  draft.context = contextCode || null;
+  if (contextCode) draft.optionSelections["o-context"] = CONTEXT_LABELS[contextCode];
+  else delete draft.optionSelections["o-context"];
+  touch(draft);
 }
 
-/** First-time context pick (builder step 1): adds every provision preselected
- *  for that context, minus anything the user already dismissed. */
-export function setInitialContext(contextCode, db) {
+/** True when a law clause's applies_to covers the draft's context (no context = no suggestion). */
+export function isSuggestedLawClause(clause) {
+  const ctx = getActiveDraft().context;
+  return !!ctx && pipeList(clause.applies_to).includes(ctx);
+}
+
+/** "Start with the full Agreement": every builder provision, plus the law clauses for the context (all of them if none picked). */
+export function addEverything(db, builderSectionIds) {
   const draft = getActiveDraft();
-  setContextFields(draft, contextCode);
-  const toAdd = db.provisions.filter(
-    (p) => p.preselect_for?.split("|").includes(contextCode) && !draft.dismissedSuggestions.includes(p.provision_id)
-  );
-  for (const p of toAdd) {
-    if (!draft.provisions.some((e) => e.id === p.provision_id)) {
-      draft.provisions.push({ id: p.provision_id, custom: false, text: null, edited: false, addedVia: "context", order: nextOrder(draft) });
+  for (const p of db.provisions) {
+    if (builderSectionIds.has(p.section_id) && !draft.provisions.some((e) => e.id === p.provision_id)) {
+      draft.provisions.push({ id: p.provision_id, custom: false, text: null, edited: false, addedVia: "manual", order: nextOrder(draft) });
     }
   }
-  touch(draft);
-}
-
-/** Sets the context without adding any preselected provisions ("start empty"). */
-export function setContextOnly(contextCode) {
-  const draft = getActiveDraft();
-  setContextFields(draft, contextCode);
-  touch(draft);
-}
-
-/** What changing to a new context would do, without doing it -- for the confirm dialog. */
-export function previewContextChange(newContext, db) {
-  const draft = getActiveDraft();
-  const toAdd = db.provisions.filter(
-    (p) =>
-      p.preselect_for?.split("|").includes(newContext) &&
-      !draft.provisions.some((e) => e.id === p.provision_id) &&
-      !draft.dismissedSuggestions.includes(p.provision_id)
-  );
-  const toRemove = draft.provisions.filter((e) => e.addedVia === "context" && !e.edited && !e.custom);
-  return { toAdd, toRemove };
-}
-
-export function applyContextChange(newContext, db, { addSuggested = true, removeOldUnedited = true } = {}) {
-  const draft = getActiveDraft();
-  const { toAdd, toRemove } = previewContextChange(newContext, db);
-  if (removeOldUnedited) {
-    const removeIds = new Set(toRemove.map((e) => e.id));
-    draft.provisions = draft.provisions.filter((e) => !removeIds.has(e.id));
+  for (const c of db.lawClauses) {
+    if ((!draft.context || pipeList(c.applies_to).includes(draft.context)) && !draft.pinned.includes(c.law_id)) draft.pinned.push(c.law_id);
   }
-  setContextFields(draft, newContext);
-  if (addSuggested) {
-    for (const p of toAdd) {
-      draft.provisions.push({ id: p.provision_id, custom: false, text: null, edited: false, addedVia: "context", order: nextOrder(draft) });
+  touch(draft);
+}
+
+/** Sections the agreement uses (plus their ancestors) in Handbook order, renumbered
+ *  1, 1.1, 2 ... by what's actually included -- so skipped sections leave no gaps. */
+export function agreementOutline(db) {
+  const draft = getActiveDraft();
+  const used = new Set(draft.provisions.map((e) => (e.custom ? e.sectionId : db.byId.provisions.get(e.id)?.section_id)).filter(Boolean));
+  for (const id of [...used]) {
+    for (let s = db.byId.sections.get(id); s?.parent_id; s = db.byId.sections.get(s.parent_id)) used.add(s.parent_id);
+  }
+  const out = [];
+  const walk = (parentId, prefix, depth) => {
+    let n = 0;
+    for (const section of db.childSections(parentId)) {
+      if (!used.has(section.section_id)) continue;
+      const number = prefix ? `${prefix}.${++n}` : `${++n}`;
+      out.push({ section, number, depth });
+      walk(section.section_id, number, depth + 1);
     }
-  }
-  touch(draft);
+  };
+  walk("", "", 0);
+  return out;
 }
 
 // ---------------------------------------------------------------------------

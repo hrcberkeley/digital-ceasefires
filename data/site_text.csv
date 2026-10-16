@@ -4,25 +4,16 @@ nav.home,Home,
 nav.handbook,Handbook,
 nav.builder,Build an Agreement,
 nav.updates,Updates,
-home.hero_title,Digital Ceasefire & Deescalation Handbook,
-home.hero_subtitle,"A working framework mediators, negotiators, and conflict parties can use to negotiate and draft the Digital components of ceasefire and deescalation agreements.",
+home.hero_title,Digital Ceasefire & De-escalation Handbook,
+home.hero_subtitle,"A practical framework for mediators, negotiators, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict and other security contexts.",
 home.cta_read,Read the Handbook,Button to /handbook
 home.cta_build,Build an Agreement,Button to /builder
-home.cta_review,Become a Reviewer,Button to registration form
 home.category_internet_interference,Internet Interference,"One of the three prohibited-operations categories, shown on Home"
 home.category_internet_interference.desc,"Shutdowns, attacks on infrastructure, and jamming that cut people off from the internet.",
 home.category_information_threats,Information Threats,
 home.category_information_threats.desc,"Disinformation, hate speech, incitement, doxxing, and manipulated media used to escalate conflict.",
 home.category_cyber_attacks,Cyber Attacks,
 home.category_cyber_attacks.desc,"Hacking, malware, DDoS, phishing, and surveillance directed at people and infrastructure.",
-roles,NGO / civil society|Lawyer / legal scholar|Technical expert|Mediator / negotiator|Government|International organization|Academic|Other,"Fixed reviewer role list, pipe-separated, used by the registration form and role badges"
-context.armed_conflict.example,e.g. an international or non-international Armed Conflict under International Humanitarian Law.,One-line example shown under the Armed Conflict option in Builder step 1
-context.grey_zone.example,e.g. coercive or destabilizing activity below the threshold of Armed Conflict.,Builder step 1
-context.internal_disturbance.example,"e.g. serious internal disorder, such as riots, that does not amount to Armed Conflict.",Builder step 1
-builder.step1_title,What kind of situation is this agreement for?,
-builder.step1_help,This sets which provisions are suggested first. You can change it later in Settings.,
-builder.start_empty,Start empty instead,
-builder.continue,Continue,
 builder.library_title,Provision library,
 builder.library_search_placeholder,Search provisions...,
 builder.agreement_title,Your agreement,
@@ -44,26 +35,72 @@ builder.new_draft,New draft,
 builder.export_docx,Export as Word (.docx),
 builder.export_markdown,Export as Markdown,
 builder.export_print,Print / Save as PDF,
-builder.include_footnotes,Include footnotes,Export toggle
 builder.export_signature_block,Signatures,Export section heading
 builder.export_definitions_heading,Definitions,
 builder.export_annex_heading,Annex on Commitment to International Law,
 builder.undefined_terms_warning,These capitalized terms are used in your agreement but have no definition:,
-builder.context_change_confirm_title,Change context?,
-builder.context_change_confirm_body,"Add this context's suggested provisions and remove unedited suggestions from the old one? Anything you edited, pinned, or added by hand stays.",
-review.comment_button,Comment,
-review.reply_button,Reply,
-review.reviewing_as,Reviewing as,"e.g. ""Reviewing as Lawyer / legal scholar"""
-review.sign_out,Sign out,
-review.comment_removed,Comment removed,Shown in place of a hidden parent comment
-review.comment_on_earlier_version,This comment was left on an earlier version of this text.,
-review.filter_open_only,Open threads only,
-review.register_title,Become a reviewer,
-review.register_pending,Thanks -- we'll email you once your reviewer access is approved.,
-error.rate_limited,You're commenting faster than we can keep up. Try again in a minute.,Maps to Apps Script code rate_limited
-error.invalid_token,Your reviewer link has expired or been revoked. Ask an admin to resend it.,Maps to code invalid_token
-error.body_too_long,"That comment is too long (4,000 characters max).",Maps to code body_too_long
-error.selection_too_long,Please select a shorter passage to comment on.,Maps to code selection_too_long
-error.network,Couldn't reach the server. Your comment hasn't been posted -- try again.,
 footer.data_source,Content is maintained by the Digital Ceasefire Initiative and updates automatically.,
 footer.disclaimer,This tool assembles model language for discussion. It is not legal advice.,
+home.cta_read.desc,"Browse the full text of the Handbook, section by section.",Home card description
+home.cta_build.desc,"Assemble a customized ceasefire, de-escalation, or other agreement from the available provisions.",Home card description
+home.cta_updates.desc,"See the latest posts, news and updates to the Platform.",Home card description
+nav.about,About,Header nav item
+about.title,About,About page heading
+about.body,"The Digital Ceasefire & De-escalation Handbook provides a practical framework for mediators, negotiators, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements that constrain digital operations in conflict and other security contexts.
+
+Developed in response to the accelerating digitalization of warfare, the Platform addresses the urgent need to confront hostile digital operations. Ceasefire agreements have traditionally overlooked the digital dimensions of conflict, leaving gaps in civilian protection and allowing unconstrained digital operations to take place.
+
+The Platform addresses three interconnected dimensions of digital warfare: Internet Interference; Information Threats; and Cyber Attacks. It places the experiences and protection of conflict-affected populations at the center of its approach.
+
+Grounded in International Law, including International Humanitarian Law, International Human Rights Law, and International Criminal Law, the Platform recognizes the challenges of applying existing legal frameworks to evolving digital threats. While Parties remain bound by their obligations under International Law, the Platform enables them to negotiate additional commitments to restrain and de-escalate digital operations that may otherwise be lawful.
+
+At its core is the Digital Ceasefire & De-escalation Handbook, a living resource designed to evolve alongside technological developments, emerging threats, and lessons from practice. Rather than prescribing a single solution, the Handbook offers a flexible menu of model provisions that Parties can select, adapt, and combine to develop agreements tailored to different conflict and security contexts.
+
+Through the Platform's [Build an Agreement function](#/builder), users can construct customized agreements using the Handbook's model provisions. The [Note to Users](#/handbook/s-note-to-users) provides useful background to constructing an Agreement. Alternatively, the [entire handbook](#/handbook) can be read and used here as a guide to support and contribute to existing negotiations.
+
+### Background to the Initiative
+
+The Digital Ceasefire & De-escalation Platform is an initiative of the Human Rights Center at the University of California, Berkeley School of Law, and is co-led by Senior Research Fellow Brett Solomon and Executive Director Betsy Popken. The Handbook has been informed by research, consultations, and engagement with experts and practitioners working across conflict mediation and negotiation, international law, human rights, humanitarian protection, and digital technologies.
+
+The initiative seeks to bridge the gap between the rapidly evolving realities of digital warfare and the practical tools available to those working to prevent conflict, reduce hostilities, protect civilians, and advance Digital Peace.
+
+The Digital Ceasefire team is available to provide advice, technical assistance, briefings, training, and support to mediators, negotiators, civil society organizations, and others addressing the digital dimensions of conflict.
+
+The website was created by the Investigations Lab, Human Rights Center. **AI Disclosure:** This platform was created using a combination of cloud and local models and LLM harnesses. All the text was produced by humans.
+
+Contact: Betsy Popken at [bpopken@berkeley.edu](mailto:bpopken@berkeley.edu) or Brett Solomon at [solomonbrett@gmail.com](mailto:solomonbrett@gmail.com)
+
+[Explore the Handbook](#/handbook) | [Build an Agreement](#/builder) | [Request Support](mailto:bpopken@berkeley.edu)",About page body (Markdown)
+handbook.intro,"The full text of the Digital Ceasefire & De-escalation Handbook is available here, section by section, or it can be downloaded in full in [PDF format](#handbook-pdf). The Handbook guides users through the process of developing an Agreement, either by selecting appropriate provisions of the Handbook into an Agreement or by using the Platform's [Build an Agreement function](#/builder). We recommend starting with reading the [Note to Users](#/handbook/s-note-to-users) below. Sections 1.0 through 11.0 then provide model provisions that can be selected, adapted, and combined to construct an Agreement tailored to different conflict and security contexts.",Handbook reader intro (Markdown)
+builder.intro_title,Build Your Own Agreement,Builder page heading
+builder.intro,"Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](#/handbook/s-note-to-users) before you begin.
+
+To get started, choose one of two approaches:
+
+- **Build from scratch:** Select the provisions you wish to include from the left-hand column and add them to your Agreement in the right-hand column.
+- **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then remove those that are not relevant.
+
+Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
+
+Your Agreement is saved automatically in this browser, and you can come back to it at any time. You will find your saved Agreements in the Drafts box at the top left of the builder.
+
+You can download your Agreement in various formats: Word, Markdown and PDF.
+
+A few things to note:
+
+- Terms that are defined will be included in the Definitions section, which you can add to.
+- Relevant footnotes will also be included in the final Agreement.",Builder intro (Markdown)
+builder.note_banner,**Read this first:** the [Note to Users](#/handbook/s-note-to-users) explains how the Handbook's provisions fit together and how to adapt them.,Read-me-first banner on the builder (Markdown)
+builder.start_scratch,Build from scratch,Start button
+builder.start_full,Start with the full Agreement,Start button: adds every provision
+builder.drafts_label,Drafts,Label for the saved-drafts dropdown
+builder.context_help,Fills the context wording in your Agreement and suggests relevant International Law commitments.,Tooltip on the context dropdown
+builder.context_none,Not specified,"Context dropdown, no context"
+builder.section_guidance,Note to Users for this section,Library: expandable section guidance
+builder.ac_only_badge,Armed Conflict only,Library badge on IHL clauses
+builder.empty_agreement,Nothing added yet -- browse the library on the left.,
+context.label,Context,
+builder.reorder_hint,Drag or use ↑ ↓ to reorder provisions within a section.,
+builder.edit,Edit,
+builder.move_up,Move up within this section,
+builder.move_down,Move down within this section,

@@ -45,24 +45,34 @@ export function linkifyTerms(text, definitions, defByTerm, matcher) {
   return out;
 }
 
-// Articles/quantifiers that are capitalized only because they start a sentence,
-// not because they're part of a Title-Case term ("The Parties", "No Party").
-const LEADING_STOPWORDS = new Set(["the", "a", "an", "no", "all", "this", "that", "these", "those", "such", "each", "any", "some", "other"]);
+// Articles/quantifiers/conjunctions capitalized only because they start a sentence,
+// not because they're part of a Title-Case term ("The Parties", "If Parties").
+const LEADING_STOPWORDS = new Set(["the", "a", "an", "no", "all", "this", "that", "these", "those", "such", "each", "any", "some", "other", "if", "when", "where", "while", "because", "under", "undertaking"]);
+// Lowercase connectors that can sit inside a Title-Case name ("Distributed Denial of Service Attacks").
+const CONNECTORS = "(?:of|on|and|to|for|the|in)";
+// Proper names of legal instruments and bodies are cited, not defined ("International Humanitarian Law").
+// Placeholders ("Party A") and instrument/body names anywhere in the phrase are skipped too.
+const PROPER_NAME = /\b(?:law|laws|convention|covenant|charter|protocol|statute|treaty|rights|commission|committee|court|plan|article|agreement|[A-Z])\b/i;
 
-/** Just the set of defined terms used in a piece of text (no HTML), for the
- *  builder's "capitalized terms with no definition" warning. */
+// Lowercased words with simple plurals folded: "Third Parties" -> ["third", "party"].
+const wordsOf = (s) => s.toLowerCase().match(/[a-z]+/g)?.map((w) => w.replace(/ies$/, "y").replace(/s$/, "")) ?? [];
+// "Confidence Building Measures (CBMs)" and "Malware / Malicious Software" each count as every variant.
+const variantsOf = (term) => term.split(/[()/]/).map(wordsOf).filter((w) => w.length);
+const containsRun = (outer, inner) => inner.length > 0 && outer.some((_, i) => inner.every((w, j) => outer[i + j] === w));
+
+/** Title-Case phrases used in `text` that match no defined term. A phrase is fine if it
+ *  equals, contains or is contained in a defined term (at word boundaries), or names a
+ *  legal instrument/body. Single capitalized words are too weak a signal and are skipped. */
 export function findUndefinedCapitalizedTerms(text, definedTermsLower) {
+  const defined = [...definedTermsLower].flatMap(variantsOf);
   const found = new Set();
-  const re = /\b(?:[A-Z][a-zA-Z]+(?:\s+|$)){1,4}/g;
-  let m;
-  while ((m = re.exec(text))) {
-    let words = m[0].trim().split(/\s+/);
+  const re = new RegExp(`\\b[A-Z][\\w-]*(?:\\s+(?:${CONNECTORS}\\s+)*[A-Z][\\w-]*){0,5}`, "g");
+  for (const [phrase] of text.matchAll(re)) {
+    let words = phrase.split(/\s+/);
     while (words.length > 1 && LEADING_STOPWORDS.has(words[0].toLowerCase())) words = words.slice(1);
-    if (words.length < 2) continue; // a single capitalized word is too weak a signal on its own
-    const phrase = words.join(" ");
-    const lower = phrase.toLowerCase();
-    const isDefined = definedTermsLower.has(lower) || definedTermsLower.has(`${lower}s`) || (lower.endsWith("s") && definedTermsLower.has(lower.slice(0, -1)));
-    if (!isDefined) found.add(phrase);
+    if (words.length < 2 || PROPER_NAME.test(words.join(" "))) continue;
+    const run = wordsOf(words.join(" "));
+    if (!defined.some((d) => containsRun(run, d) || containsRun(d, run))) found.add(words.join(" "));
   }
   return [...found];
 }
