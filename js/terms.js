@@ -64,7 +64,7 @@ const LEADING_STOPWORDS = new Set(["the", "a", "an", "no", "all", "this", "that"
 const CONNECTORS = "(?:of|on|and|to|for|the|in)";
 // Proper names of legal instruments and bodies are cited, not defined ("International Humanitarian Law").
 // Placeholders ("Party A") and instrument/body names anywhere in the phrase are skipped too.
-const PROPER_NAME = /\b(?:law|laws|convention|covenant|charter|protocol|statute|treaty|rights|commission|committee|court|plan|article|agreement|[A-Z])\b/i;
+const PROPER_NAME = /\b(?:law|laws|convention|covenant|charter|protocol|statute|treaty|rights|commission|committee|nations|court|plan|article|agreement|[A-Z])\b/i;
 
 // Lowercased words with simple plurals folded: "Third Parties" -> ["third", "party"].
 const wordsOf = (s) => s.toLowerCase().match(/[a-z]+/g)?.map((w) => w.replace(/ies$/, "y").replace(/s$/, "")) ?? [];

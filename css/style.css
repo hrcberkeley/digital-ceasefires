@@ -243,7 +243,7 @@ body:has(.home) .site-footer { margin-top: 0; }
 }
 .definition-card strong { display: block; margin-bottom: 4px; }
 .footnotes-list { font-size: 0.85rem; color: var(--color-ink-soft); border-top: 1px solid var(--color-border); margin-top: var(--space-7); padding-top: var(--space-4); }
-.footnotes-list li { margin-bottom: var(--space-2); }
+.footnotes-list li { margin-bottom: var(--space-2); overflow-wrap: anywhere; }
 
 /* ---------- Builder ---------- */
 .builder-shell { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: var(--space-6); align-items: start; }
@@ -347,6 +347,7 @@ body:has(.home) .site-footer { margin-top: 0; }
 /* ---------- Responsive: single column below 768px, builder switches to tap-to-add ---------- */
 @media (max-width: 768px) {
   .container { padding: 0 var(--space-4); }
+  .signal-field { opacity: 0.4; } /* traces read as noise on a small screen */
   .grid-two, .builder-shell { grid-template-columns: 1fr; }
   .toc { position: static; max-height: none; margin-bottom: var(--space-5); }
   .hero { grid-template-columns: 1fr; gap: var(--space-5); min-height: 0; }
