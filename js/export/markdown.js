@@ -6,18 +6,28 @@ export function draftToMarkdown(db, draft, { includeFootnotes = true } = {}) {
   if (model.contextLabel) lines.push(`**Context:** ${model.contextLabel}`, "");
   if (model.parties.length) lines.push(`**Parties:** ${model.parties.join(", ")}`, "");
 
-  for (const section of model.sections) {
-    lines.push(`${"#".repeat(section.depth + 2)} ${section.number}. ${section.title}`, "");
-    for (const item of section.items) {
-      lines.push(`${item.label} ${item.text}` + footnoteMarks(item.footnoteIds, includeFootnotes), "");
+  const renderSections = (list) => {
+  for (const section of list) {
+      lines.push(`${"#".repeat(section.depth + 2)} ${section.number}. ${section.title}`, "");
+      for (const item of section.items) {
+        lines.push(`${item.label} ${item.text}` + footnoteMarks(item.footnoteIds, includeFootnotes), "");
+      }
     }
-  }
+  };
+  renderSections(model.sections);
 
   if (model.definitions.length) {
     lines.push("## Definitions", "");
     for (const d of model.definitions) lines.push(`**${d.term}:** ${d.text}`, "");
   }
 
+  renderSections(model.signatureSections);
+  if (model.genericSignatures) {
+    lines.push("## Signatures", "");
+    for (const party of model.parties.length ? model.parties : ["Party A", "Party B"]) {
+      lines.push(`For ${party}: ________________________`, "");
+    }
+  }
   if (model.lawClauses.length) {
     lines.push("## Annex on Commitment to International Law", "");
     let lastGroup = null;
@@ -31,12 +41,7 @@ export function draftToMarkdown(db, draft, { includeFootnotes = true } = {}) {
     lines.push("");
   }
 
-  if (model.genericSignatures) {
-    lines.push("## Signatures", "");
-    for (const party of model.parties.length ? model.parties : ["Party A", "Party B"]) {
-      lines.push(`For ${party}: ________________________`, "");
-    }
-  }
+
 
   if (includeFootnotes && model.footnotes.length) {
     lines.push("## Footnotes", "");

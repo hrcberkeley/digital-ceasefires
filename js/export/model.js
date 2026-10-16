@@ -64,7 +64,9 @@ export function buildExportModel(db, draft) {
     title: "Digital Ceasefire Agreement",
     contextLabel: draft.context ? CONTEXT_LABELS[draft.context] : "",
     parties,
-    sections,
+    // Signatures come after the Definitions, so they're split off the body
+    sections: sections.filter((s) => s.sectionId !== "s-10.0"),
+    signatureSections: sections.filter((s) => s.sectionId === "s-10.0"),
     // the Handbook's own 10.0 Signatures provisions replace the generic block
     genericSignatures: !sections.some((s) => s.sectionId === "s-10.0"),
     definitions: defRows,

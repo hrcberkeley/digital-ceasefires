@@ -34,21 +34,34 @@ export async function downloadDocx(db, draft, { includeFootnotes = true } = {}) 
   if (model.contextLabel) children.push(meta("Context", model.contextLabel));
   if (model.parties.length) children.push(meta("Parties", model.parties.join(", ")));
 
-  for (const section of model.sections) {
-    const heading = [HeadingLevel.HEADING_1, HeadingLevel.HEADING_2, HeadingLevel.HEADING_3][Math.min(section.depth, 2)];
-    children.push(new Paragraph({ text: `${section.number}. ${section.title}`, heading }));
-    section.items.forEach((item) => {
-      const runs = [new TextRun({ text: `${item.label}\t` }), new TextRun(item.text)];
-      if (includeFootnotes) for (const id of item.footnoteIds) if (fnNum.has(id)) runs.push(new FootnoteReferenceRun(fnNum.get(id)));
-      children.push(new Paragraph({ children: runs, tabStops: [{ type: "left", position: 720 }], indent: { left: 720, hanging: 720 } }));
-    });
-  }
+  const renderSections = (list) => {
+  for (const section of list) {
+      const heading = [HeadingLevel.HEADING_1, HeadingLevel.HEADING_2, HeadingLevel.HEADING_3][Math.min(section.depth, 2)];
+      children.push(new Paragraph({ text: `${section.number}. ${section.title}`, heading }));
+      section.items.forEach((item) => {
+        const runs = [new TextRun({ text: `${item.label}\t` }), new TextRun(item.text)];
+        if (includeFootnotes) for (const id of item.footnoteIds) if (fnNum.has(id)) runs.push(new FootnoteReferenceRun(fnNum.get(id)));
+        children.push(new Paragraph({ children: runs, tabStops: [{ type: "left", position: 720 }], indent: { left: 720, hanging: 720 } }));
+      });
+    }
+  };
+  renderSections(model.sections);
 
   if (model.definitions.length) {
     children.push(new Paragraph({ text: "Definitions", heading: HeadingLevel.HEADING_1 }));
     for (const d of model.definitions) children.push(meta(d.term, d.text));
   }
 
+  renderSections(model.signatureSections);
+  if (model.genericSignatures) {
+    children.push(new Paragraph({ text: "Signatures", heading: HeadingLevel.HEADING_1, keepNext: true }));
+    for (const party of model.parties.length ? model.parties : ["Party A", "Party B"]) {
+      children.push(new Paragraph({ children: [new TextRun({ text: `For ${party}`, bold: true })], keepNext: true, spacing: { before: 480, after: 0 } }));
+      for (const label of ["Name:", "Title:", "Signature:", "Date:"]) {
+        children.push(new Paragraph({ text: `${label} ______________________________`, keepNext: true, spacing: { before: 240, after: 0 } }));
+      }
+    }
+  }
   if (model.lawClauses.length) {
     children.push(new Paragraph({ text: "Annex on Commitment to International Law", heading: HeadingLevel.HEADING_1 }));
     let lastGroup = null;
@@ -61,15 +74,7 @@ export async function downloadDocx(db, draft, { includeFootnotes = true } = {}) 
     }
   }
 
-  if (model.genericSignatures) {
-    children.push(new Paragraph({ text: "Signatures", heading: HeadingLevel.HEADING_1, keepNext: true }));
-    for (const party of model.parties.length ? model.parties : ["Party A", "Party B"]) {
-      children.push(new Paragraph({ children: [new TextRun({ text: `For ${party}`, bold: true })], keepNext: true, spacing: { before: 480, after: 0 } }));
-      for (const label of ["Name:", "Title:", "Signature:", "Date:"]) {
-        children.push(new Paragraph({ text: `${label} ______________________________`, keepNext: true, spacing: { before: 240, after: 0 } }));
-      }
-    }
-  }
+
 
   const footnotes = {};
   if (includeFootnotes) {

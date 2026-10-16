@@ -355,20 +355,24 @@ function renderAgreementPane(db, draft, redraw) {
     pane.appendChild(h("p", { className: "muted" }, siteText(db, "builder.empty_agreement", "Nothing added yet -- browse the library on the left.")));
   }
 
-  for (const { section, number, depth } of outline) {
-    pane.appendChild(h(`h${Math.min(3 + depth, 5)}`, { className: "agreement-heading" }, `${number}. ${section.title}`));
-    const entries = (bySection.get(section.section_id) || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    if (!entries.length) continue;
-    const group = h("div", { className: "section-group", dataset: { sectionId: section.section_id } });
-    entries.forEach((entry, i) => group.appendChild(renderAgreementItem(entry, db, draft, redraw, entries, i)));
-    pane.appendChild(group);
-    if (window.Sortable) {
-      window.Sortable.create(group, {
-        animation: 150,
-        onEnd: () => state.reorderWithinSection([...group.children].map((el) => el.dataset.entryId)),
-      });
+  const renderOutline = (list) => {
+    for (const { section, number, depth } of list) {
+      pane.appendChild(h(`h${Math.min(3 + depth, 5)}`, { className: "agreement-heading" }, `${number}. ${section.title}`));
+      const entries = (bySection.get(section.section_id) || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      if (!entries.length) continue;
+      const group = h("div", { className: "section-group", dataset: { sectionId: section.section_id } });
+      entries.forEach((entry, i) => group.appendChild(renderAgreementItem(entry, db, draft, redraw, entries, i)));
+      pane.appendChild(group);
+      if (window.Sortable) {
+        window.Sortable.create(group, {
+          animation: 150,
+          onEnd: () => state.reorderWithinSection([...group.children].map((el) => el.dataset.entryId)),
+        });
+      }
     }
-  }
+  };
+  // Definitions sit between the body and the Signatures, like the exports
+  renderOutline(outline.filter((o) => o.section.section_id !== "s-10.0"));
 
   const attachments = state.getAttachments(db);
   if (attachments.definitions.size || draft.customDefinitions.length) {
@@ -381,6 +385,8 @@ function renderAgreementPane(db, draft, redraw) {
       pane.appendChild(renderAttachedItem(cd.id, cd.term, cd.text, "definitions", null, db, draft, redraw, true));
     }
   }
+  pane.appendChild(button(siteText(db, "builder.add_custom_definition", "Add a custom definition"), () => openCustomDefinitionModal(db, redraw)));
+  renderOutline(outline.filter((o) => o.section.section_id === "s-10.0"));
   if (attachments.lawClauses.size) {
     pane.appendChild(h("h3", {}, siteText(db, "builder.export_annex_heading", "Annex on Commitment to International Law")));
     for (const id of attachments.lawClauses) {
@@ -388,7 +394,6 @@ function renderAgreementPane(db, draft, redraw) {
       if (clause) pane.appendChild(renderAttachedItem(clause.law_id, clause.group, clause.text, "lawClauses", attachments.byLaw.get(id), db, draft, redraw));
     }
   }
-  pane.appendChild(button(siteText(db, "builder.add_custom_definition", "Add a custom definition"), () => openCustomDefinitionModal(db, redraw)));
 
   return pane;
 }
