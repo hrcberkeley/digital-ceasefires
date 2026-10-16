@@ -1,6 +1,7 @@
 // Hash-based routing so the site works on any static host without server rewrites
 // (PRD s.5 "Routing"). Routes are registered as `/path/:param` patterns.
 import { clear, h } from "./utils.js";
+import { signalField } from "./signal.js";
 
 const routes = [];
 const loader = h("div", { className: "loading", role: "status" }, "Loading...");
@@ -48,11 +49,20 @@ async function render() {
       } finally {
         loader.remove();
       }
+      addBand();
       return;
     }
   }
   clear(mountEl);
   await notFoundHandler({ mountEl });
+}
+
+// Faint signal-trace band behind the top of every page that doesn't bring its own (the home hero does).
+function addBand() {
+  if (mountEl.querySelector(".signal-field")) return;
+  const canvas = h("canvas", { className: "signal-field signal-band", "aria-hidden": "true" });
+  mountEl.prepend(canvas);
+  signalField(canvas, { alpha: 0.07, packets: 3 });
 }
 
 export function start(el) {

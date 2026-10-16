@@ -1,6 +1,7 @@
 import { h, clear } from "./utils.js";
 import { t } from "./data.js";
 import { currentPath } from "./router.js";
+import { signalField } from "./signal.js";
 
 const NAV_ITEMS = [
   { path: "/", key: "nav.home", fallback: "Home" },
@@ -40,6 +41,8 @@ export function renderHeader(db) {
 export function renderFooter(db) {
   const footer = document.getElementById("site-footer");
   clear(footer);
+  const canvas = h("canvas", { className: "signal-field signal-foot", "aria-hidden": "true" });
+  footer.append(canvas);
   footer.appendChild(
     h("div", { className: "container" }, [
       h("a", { className: "site-footer__logo", href: "https://humanrights.berkeley.edu/", target: "_blank", rel: "noopener" },
@@ -48,4 +51,5 @@ export function renderFooter(db) {
       h("p", {}, t(db, "footer.disclaimer", "")),
     ])
   );
+  signalField(canvas, { alpha: 0.06, packets: 2 });
 }

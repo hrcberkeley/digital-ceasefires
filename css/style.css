@@ -117,7 +117,7 @@ button { font: inherit; }
 .badge-custom { background: #e6e9f5; color: #3d3f8f; }
 
 /* ---------- Layout helpers ---------- */
-.view { min-height: 60vh; }
+.view { min-height: 60vh; position: relative; isolation: isolate; }
 /* fixed so it takes no space: a route may scroll to an anchor before the router removes it */
 .loading {
   position: fixed; top: 50%; left: 50%; translate: -50% -50%;
@@ -157,6 +157,9 @@ button { font: inherit; }
   z-index: -1; pointer-events: none;
   mask-image: linear-gradient(to bottom, transparent, #000 15%, #000 80%, transparent);
 }
+/* quieter versions: a strip behind each inner page's title, and one rising into the footer */
+.signal-band { bottom: auto; height: 220px; mask-image: linear-gradient(to bottom, #000 30%, transparent); }
+.signal-foot { mask-image: linear-gradient(to top, #000 20%, transparent); }
 .hero h1 {
   font-size: clamp(1.9rem, 3.9vw, 3.5rem); font-weight: 800; line-height: 0.98; letter-spacing: -0.03em;
   text-transform: uppercase; margin: 0;
@@ -320,7 +323,7 @@ button { font: inherit; }
 .toast-error { background: var(--color-accent); }
 
 /* ---------- Footer ---------- */
-.site-footer { border-top: 1px solid var(--color-border); padding: var(--space-6) 0; color: var(--color-ink-soft); font-size: 0.85rem; margin-top: var(--space-7); }
+.site-footer { position: relative; isolation: isolate; border-top: 1px solid var(--color-border); padding: var(--space-6) 0; color: var(--color-ink-soft); font-size: 0.85rem; margin-top: var(--space-7); }
 .site-footer .container { display: flex; flex-direction: column; gap: var(--space-1); }
 .site-footer__logo { display: inline-block; margin-bottom: var(--space-4); }
 .site-footer__logo img { display: block; height: 40px; width: auto; }
