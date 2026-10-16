@@ -10,8 +10,10 @@
   --color-border: #dde2ea;
   --color-primary: #1e4d6b;
   --color-primary-dark: #143349;
-  --color-accent: #b0492f;
-  --color-accent-soft: #f5e4de;
+  /* HRC red: the one extra color */
+  --color-accent: #c41e24;
+  --color-accent-soft: #fbe9ea;
+  --grid-line: rgba(26, 34, 51, 0.05);
   --color-success: #2f7d4f;
   --color-success-soft: #e3f3e8;
   --color-warning: #9a6a11;
@@ -83,7 +85,7 @@ button { font: inherit; }
   text-decoration: none; color: var(--color-ink-soft); font-weight: 500; font-size: 0.95rem;
 }
 .site-nav a:hover { background: var(--color-paper-sunken); color: var(--color-ink); }
-.site-nav a[aria-current="page"] { color: var(--color-primary); background: var(--color-accent-soft); }
+.site-nav a[aria-current="page"] { color: var(--color-ink); box-shadow: inset 0 -2px 0 var(--color-accent); border-radius: 0; }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -144,7 +146,19 @@ button { font: inherit; }
 .cluster { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 
 /* ---------- Home ---------- */
-.hero { padding: var(--space-7) 0 var(--space-6); text-align: left; max-width: 62ch; }
+/* faint graph-paper grid, fading out right and down: the only "cyber" texture on the site */
+.hero { position: relative; padding: var(--space-7) 0 var(--space-6); text-align: left; }
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 80% 90% at 70% 40%, #000 20%, transparent 75%);
+}
+.hero > * { max-width: 62ch; }
+.hero .eyebrow {
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--color-accent); margin-bottom: var(--space-3);
+}
 .hero h1 { font-size: 2.4rem; margin-bottom: var(--space-4); }
 .hero p { font-size: 1.15rem; color: var(--color-ink-soft); }
 .hero-ctas { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-5); }
@@ -162,28 +176,33 @@ button { font: inherit; }
   border-radius: var(--radius); font-size: 0.9rem;
 }
 .toc-list a:hover { background: var(--color-paper-sunken); }
-.toc-list a.active { color: var(--color-primary); font-weight: 600; background: var(--color-accent-soft); }
+.toc-list a.active { color: var(--color-ink); font-weight: 600; background: var(--color-paper-sunken); }
 
 .section-block { margin-bottom: var(--space-7); scroll-margin-top: 84px; }
 .section-block h2 { border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2); }
 .section-guidance {
-  font-style: italic; color: var(--color-ink-soft); border-left: 3px solid var(--color-border);
-  padding: var(--space-1) var(--space-4); margin: var(--space-4) 0; font-size: 0.95rem;
+  font-style: italic; color: var(--color-ink-soft);
+  margin: var(--space-4) 0; font-size: 0.95rem;
 }
 .provision { position: relative; padding: var(--space-1) var(--space-2); border-radius: var(--radius); scroll-margin-top: 84px; }
 .provision:hover { background: var(--color-paper-sunken); }
 .provision .provision-text { margin: 0; }
-/* Absolutely positioned so hidden actions take no space; still focusable, shown on focus. */
-.provision-actions { position: absolute; top: var(--space-1); right: var(--space-2); display: flex; gap: var(--space-2); opacity: 0; transition: opacity .15s; }
-.provision:hover .provision-actions, .provision:focus-within .provision-actions { opacity: 1; }
+/* Actions get their own gutter column so they never overlap text and stay reachable on touch. */
+.provision--actionable { display: grid; grid-template-columns: 1fr auto; gap: var(--space-3); align-items: start; }
+.provision-actions { display: flex; gap: var(--space-2); }
+.btn-add { background: transparent; color: var(--color-ink-soft); border-color: var(--color-border); white-space: nowrap; }
+.provision:hover .btn-add, .btn-add:focus-visible { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.toc-details > summary { cursor: pointer; font-weight: 600; padding: var(--space-2) 0; }
+@media (min-width: 769px) { .toc-details > summary { display: none; } }
 .provision.outside-context { opacity: 0.55; }
 .provision.outside-context::after {
   content: "Outside chosen context"; display: block; font-size: 0.75rem; color: var(--color-warning);
   margin-top: var(--space-1); font-style: italic;
 }
 .defined-term {
-  border-bottom: 1px dotted var(--color-primary); cursor: help; text-decoration: none; color: inherit;
+  text-decoration: underline dotted; text-decoration-color: color-mix(in srgb, var(--color-ink-soft) 45%, transparent); text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: help; color: inherit;
 }
+.defined-term:hover { text-decoration-color: var(--color-ink); }
 .footnote-ref { font-size: 0.75em; vertical-align: super; text-decoration: none; margin-left: 1px; }
 .definition-card {
   position: absolute; z-index: 30; max-width: 320px; background: var(--color-ink); color: #fff;
@@ -224,8 +243,16 @@ button { font: inherit; }
 .builder-intro { margin-bottom: var(--space-5); }
 .builder-intro-text summary { cursor: pointer; list-style: none; }
 .builder-intro-text summary h1 { display: inline; }
-.builder-intro-text summary::after { content: " ▾"; color: var(--color-ink-soft); }
-.note-banner { padding: var(--space-3) var(--space-4); border-left: 4px solid var(--color-warning); background: var(--color-warning-soft); border-radius: var(--radius); }
+.builder-intro-text summary::after { content: "Show instructions"; margin-left: var(--space-3); font-size: 0.85rem; color: var(--color-ink-soft); }
+.builder-intro-text[open] > summary::after { content: "Hide instructions"; }
+.builder-intro-text summary:hover::after { text-decoration: underline; }
+.builder-intro-text summary::-webkit-details-marker { display: none; }
+.export-menu { position: relative; }
+.export-menu > summary { list-style: none; cursor: pointer; }
+.export-menu > summary::-webkit-details-marker { display: none; }
+.export-menu-panel { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-2); background: var(--color-paper); border: 1px solid var(--color-border); border-radius: var(--radius); box-shadow: var(--shadow-pop); white-space: nowrap; }
+.note-banner.compact { padding: var(--space-2) var(--space-3); margin-bottom: var(--space-4); font-size: 0.9rem; }
+.note-banner { padding: var(--space-3) var(--space-4); background: var(--color-warning-soft); border-radius: var(--radius); }
 .note-banner p { margin: 0; }
 
 .agreement-item {
@@ -279,6 +306,8 @@ button { font: inherit; }
 /* ---------- Footer ---------- */
 .site-footer { border-top: 1px solid var(--color-border); padding: var(--space-6) 0; color: var(--color-ink-soft); font-size: 0.85rem; margin-top: var(--space-7); }
 .site-footer .container { display: flex; flex-direction: column; gap: var(--space-1); }
+.site-footer__logo { display: inline-block; margin-bottom: var(--space-4); }
+.site-footer__logo img { display: block; height: 40px; width: auto; }
 
 /* ---------- Responsive: single column below 768px, builder switches to tap-to-add ---------- */
 @media (max-width: 768px) {
@@ -289,6 +318,7 @@ button { font: inherit; }
   .context-choice-grid { grid-template-columns: 1fr; }
   .hero h1 { font-size: 1.8rem; }
   .site-header__inner { flex-wrap: wrap; }
+  .site-header { position: static; } /* wrapped nav is ~150px: too tall to pin on a phone */
   .agreement-item { cursor: default; }
   .builder-pane-header { position: static; }
 }
@@ -296,7 +326,7 @@ button { font: inherit; }
 /* ---------- Print / export-to-PDF ---------- */
 @page { margin: 2.5cm; }
 @media print {
-  .no-print, .site-header, .site-footer, .provision-actions, .comment-trigger, .skip-link, #toast-region, .toc,
+  .export-menu, .no-print, .site-header, .site-footer, .provision-actions, .comment-trigger, .skip-link, #toast-region, .toc,
   button, .btn, select, input, textarea, .badge, .chip-row, .card, .builder-pane-header,
   .builder-pane:first-child, .builder-shell > :not(.builder-pane) { display: none !important; }
   /* keep only the agreement pane (the second .builder-pane) */

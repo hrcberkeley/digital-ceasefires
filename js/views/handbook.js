@@ -66,8 +66,10 @@ function renderProvisionBlock(provision, db, matcher) {
   el.appendChild(renderTextBlock(provision.text, provision.footnote_ids, db, matcher));
   if (provision.section_id === "s-note-to-users") return el; // guidance, not agreement text
 
+  el.classList.add("provision--actionable");
   const actions = h("div", { className: "provision-actions" });
-  const addBtn = h("button", { className: "btn btn-sm btn-primary" }, siteText(db, "builder.add_button", "Add to my agreement"));
+  const addLabel = siteText(db, "builder.add_button", "Add to my agreement");
+  const addBtn = h("button", { className: "btn btn-sm btn-add", title: addLabel, ariaLabel: addLabel }, "+ Add");
   addBtn.addEventListener("click", () => {
     addProvision(provision.provision_id);
     toast("Added to your agreement.");
@@ -180,7 +182,9 @@ export function renderHandbook({ mountEl, db, params }) {
   const topSections = db.childSections("");
 
   const toc = h("nav", { ariaLabel: "Handbook sections" }, renderToc(topSections, db, params.sectionId || null));
+  const tocDetails = h("details", { className: "toc-details", open: window.matchMedia("(min-width: 769px)").matches }, [h("summary", {}, "Contents"), toc]);
   const content = h("div", { className: "prose" });
+  content.appendChild(h("h1", {}, siteText(db, "handbook.title", "The Handbook")));
   content.appendChild(renderIntro(db));
   for (const s of topSections) content.appendChild(renderSection(s, db, matcher, 2));
   content.appendChild(renderFootnotesList(db));
@@ -188,9 +192,25 @@ export function renderHandbook({ mountEl, db, params }) {
   attachDefinitionHoverCards(content, db);
 
   mountEl.appendChild(h("div", { className: "container section-pad grid-two handbook-layout" }, [
-    h("div", { className: "toc" }, [toc]),
+    h("div", { className: "toc" }, [tocDetails]),
     content,
   ]));
+
+  // scroll-spy: highlight the TOC link of the section nearest the top; no URL change
+  const links = new Map([...toc.querySelectorAll("a")].map((a) => [a.getAttribute("href"), a]));
+  const tocEl = tocDetails.parentElement;
+  const spy = new IntersectionObserver((entries) => {
+    if (!document.contains(content)) return spy.disconnect();
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const link = links.get(`#/handbook/${e.target.id.slice(4)}`);
+      if (!link) continue;
+      toc.querySelector("a.active")?.classList.remove("active");
+      link.classList.add("active");
+      if (tocEl.scrollHeight > tocEl.clientHeight) link.scrollIntoView({ block: "nearest" });
+    }
+  }, { rootMargin: "-80px 0px -70% 0px" });
+  content.querySelectorAll("section.section-block").forEach((s) => spy.observe(s));
 
   if (params.sectionId) {
     document.getElementById(`sec-${params.sectionId}`)?.scrollIntoView({ behavior: "instant", block: "start" });

@@ -25,6 +25,18 @@ function resolveTerm(matched, termByLower) {
  *  and returns an HTML string. Caller is expected to have already escaped/derived
  *  `text` from plain Sheet content (no markdown expected in provision/definition text). */
 export function linkifyTerms(text, definitions, defByTerm, matcher) {
+  // inline [text](http(s)/mailto url) -> <a>; term linking runs only on the text between/inside links' labels' siblings
+  const LINK = /\[([^\]]+)\]\(((?:https?:\/\/|mailto:)[^\s)]+)\)/g;
+  let out = "", last = 0, m;
+  while ((m = LINK.exec(text))) {
+    out += linkifyPlain(text.slice(last, m.index), defByTerm, matcher);
+    out += `<a href="${escapeHtmlLocal(m[2]).replace(/"/g, "&quot;")}" target="_blank" rel="noopener">${escapeHtmlLocal(m[1])}</a>`;
+    last = m.index + m[0].length;
+  }
+  return out + linkifyPlain(text.slice(last), defByTerm, matcher);
+}
+
+function linkifyPlain(text, defByTerm, matcher) {
   if (!matcher.regex) return escapeHtmlLocal(text);
   let out = "";
   let last = 0;

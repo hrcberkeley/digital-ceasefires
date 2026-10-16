@@ -37,7 +37,7 @@ function mountWorkspace(root, db, draft, ui, redraw) {
   const outdated = state.findOutdatedProvisions(db);
   for (const { entry, current } of outdated) {
     root.appendChild(
-      h("div", { className: "card small", style: "border-color:var(--color-warning); margin-bottom: var(--space-5);" }, [
+      h("div", { className: "note-banner compact small" }, [
         h("strong", {}, `${current.provision_id} has changed in the handbook since you added it.`),
         h("p", {}, `Now reads: "${truncate(resolveForReading(current.text, db), 200)}"`),
         h("div", { className: "cluster" }, [
@@ -51,7 +51,7 @@ function mountWorkspace(root, db, draft, ui, redraw) {
   const undefinedTerms = getUndefinedTerms(db, draft);
   if (undefinedTerms.length) {
     root.appendChild(
-      h("div", { className: "card small", style: "border-color:var(--color-warning); margin-bottom: var(--space-5);" }, [
+      h("div", { className: "note-banner compact small" }, [
         h("strong", {}, siteText(db, "builder.undefined_terms_warning", "")),
         h("p", {}, undefinedTerms.join(", ")),
       ])
@@ -112,11 +112,13 @@ function renderHeader(db, draft, ui, redraw) {
     drafts.map((d) => h("option", { value: d.id, selected: d.id === draft.id }, d.name))
   );
 
-  const exportMenu = h("div", { className: "cluster" }, [
-    button(siteText(db, "builder.export_docx", "Export as Word (.docx)"), () => downloadDocx(db, draft).catch((e) => toast(e.message, "error"))),
-    button(siteText(db, "builder.export_markdown", "Export as Markdown"), () => downloadMarkdown(db, draft)),
-    button(siteText(db, "builder.export_print", "Print / Save as PDF"), () => window.print()),
-  ]);
+  const exportMenu = h("details", { className: "export-menu" }, [h("summary", { className: "btn" }, "Export ▾")]);
+  const choice = (label, fn) => button(label, () => { exportMenu.open = false; fn(); }, "btn-ghost btn-sm");
+  exportMenu.appendChild(h("div", { className: "export-menu-panel" }, [
+    choice(siteText(db, "builder.export_docx", "Export as Word (.docx)"), () => downloadDocx(db, draft).catch((e) => toast(e.message, "error"))),
+    choice(siteText(db, "builder.export_markdown", "Export as Markdown"), () => downloadMarkdown(db, draft)),
+    choice(siteText(db, "builder.export_print", "Print / Save as PDF"), () => window.print()),
+  ]));
 
   return h("div", { className: "stack no-print", style: "margin-bottom: var(--space-5);" }, [
     h("div", { className: "cluster", style: "justify-content: space-between;" }, [
@@ -130,9 +132,9 @@ function renderHeader(db, draft, ui, redraw) {
         h("label", { className: "small muted" }, siteText(db, "context.label", "Context")),
         contextSelect(db, draft),
         button(siteText(db, "builder.settings", "Settings"), () => { ui.showSettings = !ui.showSettings; redraw(); }),
+        exportMenu,
       ]),
     ]),
-    exportMenu,
   ]);
 }
 

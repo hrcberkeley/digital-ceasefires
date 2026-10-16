@@ -11,8 +11,13 @@ export function renderHome({ mountEl, db }) {
   mountEl.appendChild(
     h("div", { className: "container" }, [
       h("section", { className: "hero" }, [
+        h("p", { className: "eyebrow" }, t(db, "home.eyebrow", "Human Rights Center · Digital Ceasefire Initiative")),
         h("h1", {}, t(db, "home.hero_title", "Digital Ceasefire & De-escalation Handbook")),
         h("p", {}, t(db, "home.hero_subtitle", "A practical framework for mediators, negotiators, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict and other security contexts.")),
+        h("div", { className: "hero-ctas" }, [
+          h("a", { className: "btn btn-primary", href: "#/builder" }, t(db, "home.cta_build", "Build an Agreement")),
+          h("a", { className: "btn", href: "#/handbook" }, t(db, "home.cta_read", "Read the Handbook")),
+        ]),
       ]),
       h(
         "div",
