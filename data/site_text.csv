@@ -5,7 +5,7 @@ nav.handbook,Handbook,
 nav.builder,Build an Agreement,
 nav.updates,Updates,
 home.hero_title,Digital Ceasefire & De-escalation Handbook,
-home.hero_subtitle,"A practical framework for mediators, negotiators, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict and other security contexts.",
+home.hero_subtitle,"A practical framework for mediators, parties, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict and other security contexts.",
 home.cta_read,Read the Handbook,Button to /handbook
 home.cta_build,Build an Agreement,Button to /builder
 home.category_internet_interference,Internet Interference,"One of the three prohibited-operations categories, shown on Home"
@@ -38,8 +38,7 @@ builder.export_print,Print / Save as PDF,
 builder.export_signature_block,Signatures,Export section heading
 builder.export_definitions_heading,Definitions,
 builder.export_annex_heading,Annex on Commitment to International Law,
-builder.undefined_terms_warning,These capitalized terms are used in your agreement but have no definition:,
-footer.data_source,Content is maintained by the Digital Ceasefire Initiative and updates automatically.,
+footer.data_source,Content is maintained by the Digital Ceasefire Platform and updates automatically.,
 footer.disclaimer,This tool assembles model language for discussion. It is not legal advice.,
 home.cta_read.desc,"Browse the full text of the Handbook, section by section.",Home card description
 home.cta_build.desc,"Assemble a customized ceasefire, de-escalation, or other agreement from the available provisions.",Home card description
@@ -58,9 +57,9 @@ At its core is the Digital Ceasefire & De-escalation Handbook, a living resource
 
 Through the Platform's [Build an Agreement function](#/builder), users can construct customized agreements using the Handbook's model provisions. The [Note to Users](#/handbook/s-note-to-users) provides useful background to constructing an Agreement. Alternatively, the [entire handbook](#/handbook) can be read and used here as a guide to support and contribute to existing negotiations.
 
-### Background to the Initiative
+### Background to the Platform
 
-The Digital Ceasefire & De-escalation Platform is an initiative of the Human Rights Center at the University of California, Berkeley School of Law, and is co-led by Senior Research Fellow Brett Solomon and Executive Director Betsy Popken. The Handbook has been informed by research, consultations, and engagement with experts and practitioners working across conflict mediation and negotiation, international law, human rights, humanitarian protection, and digital technologies.
+The [Digital Ceasefire & De-escalation Platform](https://humanrights.berkeley.edu/projects/digital-ceasefire-and-de-escalation-handbook/) is an initiative of the [Human Rights Center](https://humanrights.berkeley.edu/) at the University of California, Berkeley School of Law, and is co-led by Senior Research Fellow [Brett Solomon](https://humanrights.berkeley.edu/people/brett-solomon/) and Executive Director [Betsy Popken](https://humanrights.berkeley.edu/people/betsy-popken/). The Handbook has been informed by research, consultations, and engagement with experts and practitioners working across conflict mediation and negotiation, international law, human rights, humanitarian protection, and digital technologies.
 
 The initiative seeks to bridge the gap between the rapidly evolving realities of digital warfare and the practical tools available to those working to prevent conflict, reduce hostilities, protect civilians, and advance Digital Peace.
 
@@ -75,16 +74,17 @@ handbook.intro,"The full text of the Digital Ceasefire & De-escalation Handbook 
 builder.intro_title,Build Your Own Agreement,Builder page heading
 builder.intro,"Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](#/handbook/s-note-to-users) before you begin.
 
-To get started, choose one of two approaches:
+To get started, choose one of three approaches:
 
 - **Build from scratch:** Select the provisions you wish to include from the left-hand column and add them to your Agreement in the right-hand column.
 - **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then remove those that are not relevant.
+- **Use the Handbook:** Read the [Handbook](#/handbook) section by section and add provisions to your Agreement as you go.
 
 Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
 
 Your Agreement is saved automatically in this browser, and you can come back to it at any time. You will find your saved Agreements in the Drafts box at the top left of the builder.
 
-You can download your Agreement in various formats: Word, Markdown and PDF.
+You can download your Agreement in various formats: Word, Markdown and PDF, by selecting the format in the Export drop down.
 
 A few things to note:
 

@@ -15,9 +15,9 @@ At its core is the Digital Ceasefire & De-escalation Handbook, a living resource
 
 Through the Platform's [Build an Agreement function](#/builder), users can construct customized agreements using the Handbook's model provisions. The [Note to Users](#/handbook/s-note-to-users) provides useful background to constructing an Agreement. Alternatively, the [entire handbook](#/handbook) can be read and used here as a guide to support and contribute to existing negotiations.
 
-### Background to the Initiative
+### Background to the Platform
 
-The Digital Ceasefire & De-escalation Platform is an initiative of the Human Rights Center at the University of California, Berkeley School of Law, and is co-led by Senior Research Fellow Brett Solomon and Executive Director Betsy Popken. The Handbook has been informed by research, consultations, and engagement with experts and practitioners working across conflict mediation and negotiation, international law, human rights, humanitarian protection, and digital technologies.
+The [Digital Ceasefire & De-escalation Platform](https://humanrights.berkeley.edu/projects/digital-ceasefire-and-de-escalation-handbook/) is an initiative of the [Human Rights Center](https://humanrights.berkeley.edu/) at the University of California, Berkeley School of Law, and is co-led by Senior Research Fellow [Brett Solomon](https://humanrights.berkeley.edu/people/brett-solomon/) and Executive Director [Betsy Popken](https://humanrights.berkeley.edu/people/betsy-popken/). The Handbook has been informed by research, consultations, and engagement with experts and practitioners working across conflict mediation and negotiation, international law, human rights, humanitarian protection, and digital technologies.
 
 The initiative seeks to bridge the gap between the rapidly evolving realities of digital warfare and the practical tools available to those working to prevent conflict, reduce hostilities, protect civilians, and advance Digital Peace.
 

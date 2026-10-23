@@ -1,4 +1,5 @@
 import { buildExportModel } from "./model.js";
+import { lawGroupName } from "../utils.js";
 
 export function draftToMarkdown(db, draft, { includeFootnotes = true } = {}) {
   const model = buildExportModel(db, draft);
@@ -33,7 +34,7 @@ export function draftToMarkdown(db, draft, { includeFootnotes = true } = {}) {
     let lastGroup = null;
     for (const clause of model.lawClauses) {
       if (clause.group !== lastGroup) {
-        lines.push(`### ${clause.group}`, "");
+        lines.push(`### ${lawGroupName(clause.group)}`, "");
         lastGroup = clause.group;
       }
       lines.push(`- ${clause.text}`);
@@ -61,7 +62,7 @@ function footnoteMarks(ids, includeFootnotes) {
 export function downloadMarkdown(db, draft, opts) {
   const text = draftToMarkdown(db, draft, opts);
   const blob = new Blob([text], { type: "text/markdown" });
-  triggerDownload(blob, "digital-ceasefire-agreement.md");
+  triggerDownload(blob, "Digital Ceasefire-De-escalation Agreement.md");
 }
 
 export function triggerDownload(blob, filename) {

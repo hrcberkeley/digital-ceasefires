@@ -1,6 +1,7 @@
 // .docx export via the `docx` npm package's UMD build, loaded on demand (it's
 // ~1MB) rather than on every page load -- only builder users who click Export need it.
 import { buildExportModel } from "./model.js";
+import { lawGroupName } from "../utils.js";
 import { triggerDownload } from "./markdown.js";
 
 // the .umd.cjs build is served by jsdelivr as content-type application/node,
@@ -67,7 +68,7 @@ export async function downloadDocx(db, draft, { includeFootnotes = true } = {}) 
     let lastGroup = null;
     for (const clause of model.lawClauses) {
       if (clause.group !== lastGroup) {
-        children.push(new Paragraph({ text: clause.group, heading: HeadingLevel.HEADING_2 }));
+        children.push(new Paragraph({ text: lawGroupName(clause.group), heading: HeadingLevel.HEADING_2 }));
         lastGroup = clause.group;
       }
       children.push(new Paragraph({ text: clause.text, numbering: { reference: "bullets", level: 0 } }));
@@ -102,5 +103,5 @@ export async function downloadDocx(db, draft, { includeFootnotes = true } = {}) 
     sections: [{ properties: { page: { margin: { top: 1417, right: 1417, bottom: 1417, left: 1417 } } }, children }],
   });
   const blob = await Packer.toBlob(doc);
-  triggerDownload(blob, "digital-ceasefire-agreement.docx");
+  triggerDownload(blob, "Digital Ceasefire-De-escalation Agreement.docx");
 }

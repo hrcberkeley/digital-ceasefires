@@ -1,11 +1,11 @@
 # Extraction diff report -- v1.4
 
-Source: `../HRC_Digital Ceasefire & Deescalation Handbook_v.1.4_May 2026.md`
+Source: `../source/HRC_Digital Ceasefire & Deescalation Handbook_v.1.4_May 2026.md`
 
 ## Counts
 
 - sections: 46
-- provisions: 151
+- provisions: 151 (0 retired)
 - options: 6
 - definitions: 40
 - law_clauses: 28

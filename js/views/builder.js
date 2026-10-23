@@ -1,12 +1,13 @@
-import { h, clear, toast, openModal, sectionLabel, renderMarkdown, NON_BUILDER_SECTION_IDS } from "../utils.js";
+import { h, clear, toast, openModal, sectionLabel, renderMarkdown, lawGroupName, NON_BUILDER_SECTION_IDS } from "../utils.js";
 import { t as siteText } from "../data.js";
-import { resolveForReading, resolveForAgreement, resolvePartyPlaceholders, optionIdsIn } from "../tokens.js";
-import { findUndefinedCapitalizedTerms } from "../terms.js";
+import { resolveForReading, resolveForAgreement, resolvePartyPlaceholders, splitOptions } from "../tokens.js";
 import * as state from "../state.js";
 import { downloadMarkdown } from "../export/markdown.js";
 import { downloadDocx } from "../export/docx.js";
 
 let unsubscribe = null;
+// Folded Definitions still belong in the printed Agreement.
+addEventListener("beforeprint", () => document.querySelectorAll(".agreement-definitions").forEach((d) => { d.open = true; }));
 
 export function renderBuilder({ mountEl, db }) {
   unsubscribe?.();
@@ -15,11 +16,22 @@ export function renderBuilder({ mountEl, db }) {
 
   // `open` remembers which library sections are expanded, so adding a provision
   // (which redraws everything) doesn't fold the section you're browsing shut.
-  const ui = { showSettings: false, editingId: null, search: "", open: new Set() };
+  // `focusId` is the provision just added, scrolled into view in the agreement pane.
+  const ui = { showSettings: false, editingId: null, search: "", open: new Set(), focusId: null };
 
+  // Every change redraws everything, so keep both panes (and the page) where they were.
   const draw = () => {
+    const scrolls = [...root.querySelectorAll(".builder-pane")].map((p) => p.scrollTop);
+    const pageY = window.scrollY;
     clear(root);
     mountWorkspace(root, db, state.getActiveDraft(), ui, draw);
+    root.querySelectorAll(".builder-pane").forEach((p, i) => { p.scrollTop = scrolls[i] ?? 0; });
+    window.scrollTo(0, pageY);
+    if (ui.focusId) {
+      const el = root.querySelector(`.agreement-pane [data-entry-id="${CSS.escape(ui.focusId)}"]`);
+      ui.focusId = null;
+      if (el) { scrollPaneTo(el); el.classList.add("just-added"); }
+    }
   };
   unsubscribe = state.subscribe(draw);
   draw();
@@ -48,19 +60,9 @@ function mountWorkspace(root, db, draft, ui, redraw) {
     );
   }
 
-  const undefinedTerms = getUndefinedTerms(db, draft);
-  if (undefinedTerms.length) {
-    root.appendChild(
-      h("div", { className: "note-banner compact small" }, [
-        h("strong", {}, siteText(db, "builder.undefined_terms_warning", "")),
-        h("p", {}, undefinedTerms.join(", ")),
-      ])
-    );
-  }
-
   const shell = h("div", { className: "builder-shell" });
   shell.appendChild(renderLibraryPane(db, draft, ui, redraw));
-  shell.appendChild(renderAgreementPane(db, draft, redraw));
+  shell.appendChild(renderAgreementPane(db, draft, ui, redraw));
   root.appendChild(shell);
 }
 
@@ -80,6 +82,7 @@ function renderIntro(db, draft, ui, redraw) {
       h("div", { className: "cluster" }, [
         button(siteText(db, "builder.start_scratch", "Build from scratch"), () => document.querySelector(".search-input")?.focus(), "btn-primary"),
         button(siteText(db, "builder.start_full", "Start with the full Agreement"), () => { state.addEverything(db, BUILDER_SECTION_IDS(db)); redraw(); }),
+        h("a", { className: "btn", href: "#/handbook" }, siteText(db, "builder.start_handbook", "Use the Handbook")),
       ])
     );
   }
@@ -88,16 +91,17 @@ function renderIntro(db, draft, ui, redraw) {
 
 const BUILDER_INTRO_FALLBACK = `Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](${NOTE_TO_USERS_HREF}) before you begin.
 
-To get started, choose one of two approaches:
+To get started, choose one of three approaches:
 
 - **Build from scratch:** Select the provisions you wish to include from the left-hand column and add them to your Agreement in the right-hand column.
 - **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then remove those that are not relevant.
+- **Use the Handbook:** Read the [Handbook](#/handbook) section by section and add provisions to your Agreement as you go.
 
 Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
 
 Your Agreement is saved automatically in this browser, and you can come back to it at any time. You will find your saved Agreements in the Drafts box at the top left of the builder.
 
-You can download your Agreement in various formats: Word, Markdown and PDF.
+You can download your Agreement in various formats: Word, Markdown and PDF, by selecting the format in the Export drop down.
 
 A few things to note:
 
@@ -126,6 +130,9 @@ function renderHeader(db, draft, ui, redraw) {
         h("label", { className: "small muted" }, siteText(db, "builder.drafts_label", "Drafts")),
         select,
         button(siteText(db, "builder.new_draft", "New draft"), () => { state.newDraft(); redraw(); }),
+        button(siteText(db, "builder.delete_draft", "Delete draft"), () => {
+          if (confirm(`Delete "${draft.name}"? This can't be undone.`)) { state.deleteDraft(draft.id); redraw(); }
+        }, "btn-ghost btn-danger"),
         h("span", { className: "small muted" }, siteText(db, "builder.saved_indicator", "Saved")),
       ]),
       h("div", { className: "cluster" }, [
@@ -142,6 +149,7 @@ function renderSettingsPanel(db, draft, redraw) {
   const panel = h("div", { className: "settings-panel stack" });
 
   panel.appendChild(h("h3", {}, siteText(db, "builder.settings", "Settings")));
+  panel.appendChild(h("p", { className: "small muted" }, siteText(db, "builder.settings_help", "Name the Parties to fill [Party A], [Party B] and so on throughout your Agreement, or save this draft as a file to share or reopen later.")));
 
   // Parties
   const partiesField = h("div", { className: "field-row" }, [h("label", {}, siteText(db, "builder.parties_label", "Parties"))]);
@@ -160,25 +168,6 @@ function renderSettingsPanel(db, draft, redraw) {
     button("+ Add party", () => { state.setParties([...parties, ""]); redraw(); }, "btn-ghost btn-sm")
   );
   panel.appendChild(partiesField);
-
-  // Option selections used in the current agreement (e.g. entry into force)
-  const usedOptionIds = new Set();
-  for (const entry of draft.provisions) {
-    const raw = entry.custom ? "" : db.byId.provisions.get(entry.id)?.text || "";
-    for (const id of optionIdsIn(raw)) if (id !== "o-context") usedOptionIds.add(id);
-  }
-  for (const optionId of usedOptionIds) {
-    const opt = db.byId.options.get(optionId);
-    if (!opt) continue;
-    const choices = opt.choices.split("|");
-    const select = h(
-      "select",
-      { className: "text-input" },
-      choices.map((c) => h("option", { value: c, selected: (draft.optionSelections[optionId] ?? opt.default) === c }, c))
-    );
-    select.addEventListener("change", () => state.setOptionSelection(optionId, select.value));
-    panel.appendChild(h("div", { className: "field-row" }, [h("label", {}, opt.label), select]));
-  }
 
   // Import / export JSON
   const fileInput = h("input", { type: "file", accept: "application/json", style: "display:none;" });
@@ -272,7 +261,7 @@ function renderLibrarySection(section, db, draft, ui, redraw, q) {
       ...section.guidance.split("\n\n").map((para) => h("p", { className: "small" }, para)),
     ]));
   }
-  for (const p of own) details.appendChild(renderLibraryItem(p, db, draft, redraw));
+  for (const p of own) details.appendChild(renderLibraryItem(p, db, draft, ui, redraw));
   for (const c of children) details.appendChild(c);
   return details;
 }
@@ -282,6 +271,10 @@ function libraryDetails(id, label, ui, q) {
   details.addEventListener("toggle", (e) => {
     if (e.target !== details) return; // nested <details> bubble their own toggles
     details.open ? ui.open.add(id) : ui.open.delete(id);
+    if (details.open) {
+      const heading = document.querySelector(`.agreement-pane [data-section-id="${CSS.escape(id)}"]`);
+      if (heading) scrollPaneTo(heading);
+    }
   });
   return details;
 }
@@ -298,7 +291,7 @@ function renderLawLibrary(db, draft, ui, redraw, q) {
     const clauses = db.lawClauses.filter((c) => c.group === group && (!q || c.text.toLowerCase().includes(q)));
     if (!clauses.length) continue;
     any = true;
-    details.appendChild(h("h4", { className: "library-subhead" }, group));
+    details.appendChild(h("h4", { className: "library-subhead" }, lawGroupName(group)));
     for (const c of clauses) {
       const added = draft.pinned.includes(c.law_id);
       const suggested = state.isSuggestedLawClause(c);
@@ -321,14 +314,14 @@ function renderLawLibrary(db, draft, ui, redraw, q) {
   return any ? details : null;
 }
 
-function renderLibraryItem(provision, db, draft, redraw) {
+function renderLibraryItem(provision, db, draft, ui, redraw) {
   const inAgreement = draft.provisions.some((e) => e.id === provision.provision_id);
   const full = resolveForReading(provision.text, db);
   const item = h("div", { className: `library-item ${inAgreement ? "in-agreement" : ""}`, title: full }, [
     h("p", {}, truncate(full, 140)),
     inAgreement
       ? h("span", { className: "badge badge-added" }, "✓")
-      : button("+", () => { state.addProvision(provision.provision_id); redraw(); }, "btn-sm"),
+      : button("+", () => { state.addProvision(provision.provision_id); ui.focusId = provision.provision_id; redraw(); }, "btn-sm"),
   ]);
   return item;
 }
@@ -337,7 +330,7 @@ function renderLibraryItem(provision, db, draft, redraw) {
 // Agreement pane
 // ---------------------------------------------------------------------------
 
-function renderAgreementPane(db, draft, redraw) {
+function renderAgreementPane(db, draft, ui, redraw) {
   const pane = h("div", { className: "builder-pane agreement-pane" });
   pane.appendChild(
     h("div", { className: "builder-pane-header" }, [
@@ -359,7 +352,7 @@ function renderAgreementPane(db, draft, redraw) {
 
   const renderOutline = (list) => {
     for (const { section, number, depth } of list) {
-      pane.appendChild(h(`h${Math.min(3 + depth, 5)}`, { className: "agreement-heading" }, `${number}. ${section.title}`));
+      pane.appendChild(h(`h${Math.min(3 + depth, 5)}`, { className: "agreement-heading", dataset: { sectionId: section.section_id } }, `${number}. ${section.title}`));
       const entries = (bySection.get(section.section_id) || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       if (!entries.length) continue;
       const group = h("div", { className: "section-group", dataset: { sectionId: section.section_id } });
@@ -376,25 +369,35 @@ function renderAgreementPane(db, draft, redraw) {
   // Definitions sit between the body and the Signatures, like the exports
   renderOutline(outline.filter((o) => o.section.section_id !== "s-10.0"));
 
+  // Definitions fold shut (they're long) so the substantive provisions stay close together
   const attachments = state.getAttachments(db);
-  if (attachments.definitions.size || draft.customDefinitions.length) {
-    pane.appendChild(h("h3", {}, siteText(db, "builder.export_definitions_heading", "Definitions")));
-    for (const id of attachments.definitions) {
-      const def = db.byId.definitions.get(id);
-      if (def) pane.appendChild(renderAttachedItem(def.definition_id, def.term, def.text, "definitions", attachments.byDefinition.get(id), db, draft, redraw));
-    }
-    for (const cd of draft.customDefinitions) {
-      pane.appendChild(renderAttachedItem(cd.id, cd.term, cd.text, "definitions", null, db, draft, redraw, true));
-    }
+  const defCount = attachments.definitions.size + draft.customDefinitions.length;
+  const defs = h("details", { className: "agreement-definitions", open: ui.open.has("defs") }, [
+    h("summary", {}, h("h3", {}, `${siteText(db, "builder.export_definitions_heading", "Definitions")} (${defCount})`)),
+  ]);
+  defs.addEventListener("toggle", () => { defs.open ? ui.open.add("defs") : ui.open.delete("defs"); });
+  for (const id of attachments.definitions) {
+    const def = db.byId.definitions.get(id);
+    if (def) defs.appendChild(renderAttachedItem(def.definition_id, def.term, def.text, attachments.byDefinition.get(id), db, draft, redraw));
   }
-  pane.appendChild(button(siteText(db, "builder.add_custom_definition", "Add a custom definition"), () => openCustomDefinitionModal(db, redraw)));
+  for (const cd of draft.customDefinitions) {
+    defs.appendChild(renderAttachedItem(cd.id, cd.term, cd.text, null, db, draft, redraw, true));
+  }
+  defs.appendChild(button(siteText(db, "builder.add_custom_definition", "Add a custom definition"), () => openCustomDefinitionModal(db, redraw)));
+  pane.appendChild(defs);
   renderOutline(outline.filter((o) => o.section.section_id === "s-10.0"));
   if (attachments.lawClauses.size) {
     pane.appendChild(h("h3", {}, siteText(db, "builder.export_annex_heading", "Annex on Commitment to International Law")));
     for (const id of attachments.lawClauses) {
       const clause = db.byId.lawClauses.get(id);
-      if (clause) pane.appendChild(renderAttachedItem(clause.law_id, clause.group, clause.text, "lawClauses", attachments.byLaw.get(id), db, draft, redraw));
+      if (clause) pane.appendChild(renderAttachedItem(clause.law_id, lawGroupName(clause.group), clause.text, attachments.byLaw.get(id), db, draft, redraw));
     }
+  }
+  if (draft.excluded?.length) {
+    pane.appendChild(h("p", { className: "small muted no-print" }, [
+      `${draft.excluded.length} removed definition(s) or clause(s). `,
+      button(siteText(db, "builder.restore_removed", "Restore them"), () => { state.restoreExcluded(); redraw(); }, "btn-ghost btn-sm"),
+    ]));
   }
 
   return pane;
@@ -403,7 +406,6 @@ function renderAgreementPane(db, draft, redraw) {
 function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
   const provision = entry.custom ? null : db.byId.provisions.get(entry.id);
   const currentText = entry.text ?? provision?.text ?? "";
-  const displayText = resolvePartyPlaceholders(resolveForAgreement(currentText, db, draft.optionSelections), draft.parties);
 
   const badges = [];
   if (entry.custom) badges.push(h("span", { className: "badge badge-custom" }, "Custom"));
@@ -414,8 +416,8 @@ function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
   item.appendChild(head);
 
   const textHost = h("div", {});
-  textHost.appendChild(h("p", { className: "provision-text" }, displayText));
-  textHost.addEventListener("dblclick", () => startEditing(item, textHost, entry, db, draft, redraw));
+  textHost.appendChild(h("p", { className: "provision-text" }, inlineText(currentText, db, draft)));
+  textHost.addEventListener("dblclick", (e) => { if (e.target.tagName !== "SELECT") startEditing(item, textHost, entry, db, draft, redraw); });
   item.appendChild(textHost);
 
   const actions = h("div", { className: "cluster small" });
@@ -427,6 +429,28 @@ function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
   item.appendChild(actions);
 
   return item;
+}
+
+// Each {{o-...}} alternative becomes a dropdown in the text; print shows the chosen words
+// (or the Handbook's bracketed alternatives while nothing is chosen).
+function inlineText(text, db, draft) {
+  return splitOptions(text, db, draft.optionSelections).map((seg) => {
+    if (!seg.optionId) return resolvePartyPlaceholders(seg.text, draft.parties);
+    const opt = db.byId.options.get(seg.optionId);
+    const chosen = draft.optionSelections[seg.optionId] || "";
+    const select = h("select", { className: `inline-choice ${chosen ? "" : "unchosen"}`, title: opt.label }, [
+      h("option", { value: "", selected: !chosen }, siteText(db, "builder.choose_option", "[choose an option]")),
+      ...opt.choices.split("|").map((c) => h("option", { value: c, selected: c === chosen }, c)),
+    ]);
+    select.addEventListener("change", () => state.setOptionSelection(seg.optionId, select.value));
+    return h("span", {}, [select, h("span", { className: "print-only" }, seg.text)]);
+  });
+}
+
+function scrollPaneTo(el) {
+  const pane = el.closest(".builder-pane");
+  if (!pane) return;
+  pane.scrollTop += el.getBoundingClientRect().top - pane.getBoundingClientRect().top - 60; // clear the sticky pane header
 }
 
 function moveButtons(siblings, index, db, redraw) {
@@ -452,8 +476,7 @@ function moveButtons(siblings, index, db, redraw) {
 function startEditing(item, textHost, entry, db, draft, redraw) {
   clear(textHost);
   const provision = entry.custom ? null : db.byId.provisions.get(entry.id);
-  const currentRaw = entry.text ?? provision?.text ?? "";
-  const textarea = editor(currentRaw);
+  const textarea = editor(resolveForAgreement(entry.text ?? provision?.text ?? "", db, draft.optionSelections));
   const save = button("Save", () => { state.editProvisionText(entry.id, textarea.value); redraw(); }, "btn-primary btn-sm");
   const cancel = button("Cancel", () => redraw(), "btn-ghost btn-sm");
   textHost.appendChild(textarea);
@@ -465,10 +488,8 @@ function editor(raw) {
   return h("textarea", { style: "width:100%;", rows: Math.min(20, Math.max(4, Math.ceil(raw.length / 90) + 1)) }, raw);
 }
 
-function renderAttachedItem(id, label, text, kind, requiredBy, db, draft, redraw, isCustom = false) {
-  const pinned = draft.pinned.includes(id);
-  const isDef = kind === "definitions";
-  const edited = isDef && !isCustom && draft.definitionEdits?.[id] != null;
+function renderAttachedItem(id, label, text, requiredBy, db, draft, redraw, isCustom = false) {
+  const edited = !isCustom && draft.definitionEdits?.[id] != null;
   if (edited) text = draft.definitionEdits[id];
   const item = h("div", { className: "agreement-item" });
   if (edited) item.appendChild(h("div", { className: "agreement-item-head" }, h("span", { className: "badge badge-edited" }, siteText(db, "builder.edited_badge", "Edited"))));
@@ -485,7 +506,7 @@ function renderAttachedItem(id, label, text, kind, requiredBy, db, draft, redraw
   }
   item.appendChild(chipRow);
   const actions = h("div", { className: "cluster small" });
-  if (isDef) {
+  {
     const startEdit = () => {
       clear(textHost);
       const textarea = editor(text);
@@ -507,12 +528,7 @@ function renderAttachedItem(id, label, text, kind, requiredBy, db, draft, redraw
       redraw();
     }, "btn-ghost btn-sm btn-danger"));
   } else {
-    actions.appendChild(
-      button(pinned ? siteText(db, "builder.unpin", "Unpin") : siteText(db, "builder.pin", "Pin"), () => {
-        (pinned ? state.unpinItem : state.pinItem)(id);
-        redraw();
-      }, "btn-ghost btn-sm")
-    );
+    actions.appendChild(button(siteText(db, "builder.remove", "Remove"), () => { state.excludeItem(id); redraw(); }, "btn-ghost btn-sm btn-danger"));
   }
   item.appendChild(actions);
   return item;
@@ -574,14 +590,4 @@ function groupBy(items, keyFn) {
     map.get(key).push(item);
   }
   return map;
-}
-
-function getUndefinedTerms(db, draft) {
-  const definedLower = new Set([...db.definitions.map((d) => d.term.toLowerCase()), ...draft.customDefinitions.map((d) => d.term.toLowerCase())]);
-  const found = new Set();
-  for (const entry of draft.provisions) {
-    const text = entry.custom ? entry.text : entry.text ?? db.byId.provisions.get(entry.id)?.text ?? "";
-    for (const term of findUndefinedCapitalizedTerms(text, definedLower)) found.add(term);
-  }
-  return [...found];
 }

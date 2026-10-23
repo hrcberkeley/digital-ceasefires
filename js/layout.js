@@ -3,6 +3,13 @@ import { t } from "./data.js";
 import { currentPath } from "./router.js";
 import { signalField } from "./signal.js";
 
+const PLATFORM = "Digital Ceasefire Platform";
+const platformLink = () => h("a", { href: "https://humanrights.berkeley.edu/projects/digital-ceasefire-and-de-escalation-handbook/", target: "_blank", rel: "noopener" }, PLATFORM);
+function dataSource(text) {
+  const [pre, ...rest] = text.split(PLATFORM);
+  return rest.length ? [pre, platformLink(), rest.join(PLATFORM)] : text;
+}
+
 const NAV_ITEMS = [
   { path: "/", key: "nav.home", fallback: "Home" },
   { path: "/handbook", key: "nav.handbook", fallback: "Handbook" },
@@ -48,7 +55,7 @@ export function renderFooter(db) {
       h("a", { className: "site-footer__logo", href: "https://humanrights.berkeley.edu/", target: "_blank", rel: "noopener" },
         h("img", { src: "data/hrc-wordmark.png", alt: "Human Rights Center, UC Berkeley School of Law", width: 689, height: 91 })),
       h("div", { className: "site-footer__text" }, [
-        h("p", {}, t(db, "footer.data_source", "")),
+        h("p", {}, dataSource(t(db, "footer.data_source", ""))),
         h("p", {}, t(db, "footer.disclaimer", "")),
       ]),
     ])

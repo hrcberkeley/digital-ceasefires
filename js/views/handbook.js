@@ -1,4 +1,4 @@
-import { h, sectionLabel, renderMarkdown } from "../utils.js";
+import { h, lawGroupName, sectionLabel, renderMarkdown } from "../utils.js";
 import { HANDBOOK_PDF_URL } from "../config.js";
 import { t as siteText } from "../data.js";
 import { resolveForReading } from "../tokens.js";
@@ -117,7 +117,7 @@ function renderLawClausesSection(db, matcher) {
   for (const group of LAW_GROUP_ORDER) {
     const clauses = db.lawClauses.filter((c) => c.group === group);
     if (!clauses.length) continue;
-    wrap.appendChild(h("h3", {}, group));
+    wrap.appendChild(h("h3", {}, lawGroupName(group)));
     for (const clause of clauses) {
       const item = h("div", { className: "provision", id: `law-${clause.law_id}` });
       item.appendChild(renderTextBlock(clause.text, clause.footnote_ids, db, matcher));

@@ -56,12 +56,12 @@ export function buildExportModel(db, draft) {
   const lawRows = [...lawClauses]
     .map((id) => db.byId.lawClauses.get(id))
     .filter(Boolean)
-    .map((l) => ({ group: l.group, text: resolvePartyPlaceholders(resolveForAgreement(l.text, db, draft.optionSelections), draft.parties) }));
+    .map((l) => ({ group: l.group, text: resolvePartyPlaceholders(resolveForAgreement(draft.definitionEdits?.[l.law_id] ?? l.text, db, draft.optionSelections), draft.parties) }));
 
   const parties = draft.parties.filter(Boolean);
 
   return {
-    title: "Digital Ceasefire Agreement",
+    title: "Digital Ceasefire/De-escalation Agreement",
     contextLabel: draft.context ? CONTEXT_LABELS[draft.context] : "",
     parties,
     // Signatures come after the Definitions, so they're split off the body

@@ -8,7 +8,7 @@ SITE_TEXT = [{'key': 'site.title', 'text': 'Digital Ceasefire Platform', 'notes'
  {'key': 'nav.updates', 'text': 'Updates', 'notes': ''},
  {'key': 'home.hero_title', 'text': 'Digital Ceasefire & De-escalation Handbook', 'notes': ''},
  {'key': 'home.hero_subtitle',
-  'text': 'A practical framework for mediators, negotiators, and affected communities to negotiate, draft, and '
+  'text': 'A practical framework for mediators, parties, and affected communities to negotiate, draft, and '
           'implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict '
           'and other security contexts.',
   'notes': ''},
@@ -54,11 +54,8 @@ SITE_TEXT = [{'key': 'site.title', 'text': 'Digital Ceasefire Platform', 'notes'
  {'key': 'builder.export_signature_block', 'text': 'Signatures', 'notes': 'Export section heading'},
  {'key': 'builder.export_definitions_heading', 'text': 'Definitions', 'notes': ''},
  {'key': 'builder.export_annex_heading', 'text': 'Annex on Commitment to International Law', 'notes': ''},
- {'key': 'builder.undefined_terms_warning',
-  'text': 'These capitalized terms are used in your agreement but have no definition:',
-  'notes': ''},
  {'key': 'footer.data_source',
-  'text': 'Content is maintained by the Digital Ceasefire Initiative and updates automatically.',
+  'text': 'Content is maintained by the Digital Ceasefire Platform and updates automatically.',
   'notes': ''},
  {'key': 'footer.disclaimer',
   'text': 'This tool assembles model language for discussion. It is not legal advice.',
@@ -104,11 +101,12 @@ SITE_TEXT = [{'key': 'site.title', 'text': 'Digital Ceasefire Platform', 'notes'
           'background to constructing an Agreement. Alternatively, the [entire handbook](#/handbook) can be read and '
           'used here as a guide to support and contribute to existing negotiations.\n'
           '\n'
-          '### Background to the Initiative\n'
+          '### Background to the Platform\n'
           '\n'
-          'The Digital Ceasefire & De-escalation Platform is an initiative of the Human Rights Center at the '
-          'University of California, Berkeley School of Law, and is co-led by Senior Research Fellow Brett Solomon and '
-          'Executive Director Betsy Popken. The Handbook has been informed by research, consultations, and engagement '
+          'The [Digital Ceasefire & De-escalation Platform](https://humanrights.berkeley.edu/projects/digital-ceasefire-and-de-escalation-handbook/) '
+          'is an initiative of the [Human Rights Center](https://humanrights.berkeley.edu/) at the University of California, '
+          'Berkeley School of Law, and is co-led by Senior Research Fellow [Brett Solomon](https://humanrights.berkeley.edu/people/brett-solomon/) '
+          'and Executive Director [Betsy Popken](https://humanrights.berkeley.edu/people/betsy-popken/). The Handbook has been informed by research, consultations, and engagement '
           'with experts and practitioners working across conflict mediation and negotiation, international law, human '
           'rights, humanitarian protection, and digital technologies.\n'
           '\n'
@@ -144,12 +142,14 @@ SITE_TEXT = [{'key': 'site.title', 'text': 'Digital Ceasefire Platform', 'notes'
   'text': 'Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security '
           'context. We recommend reading the [Note to Users](#/handbook/s-note-to-users) before you begin.\n'
           '\n'
-          'To get started, choose one of two approaches:\n'
+          'To get started, choose one of three approaches:\n'
           '\n'
           '- **Build from scratch:** Select the provisions you wish to include from the left-hand column and add them '
           'to your Agreement in the right-hand column.\n'
           "- **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then "
           'remove those that are not relevant.\n'
+          '- **Use the Handbook:** Read the [Handbook](#/handbook) section by section and add provisions to '
+          'your Agreement as you go.\n'
           '\n'
           'Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand '
           'column to reflect the specific circumstances, priorities, and commitments of the Parties.\n'
@@ -157,7 +157,7 @@ SITE_TEXT = [{'key': 'site.title', 'text': 'Digital Ceasefire Platform', 'notes'
           'Your Agreement is saved automatically in this browser, and you can come back to it at any time. You will '
           'find your saved Agreements in the Drafts box at the top left of the builder.\n'
           '\n'
-          'You can download your Agreement in various formats: Word, Markdown and PDF.\n'
+          'You can download your Agreement in various formats: Word, Markdown and PDF, by selecting the format in the Export drop down.\n'
           '\n'
           'A few things to note:\n'
           '\n'

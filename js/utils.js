@@ -1,5 +1,8 @@
 // Small cross-cutting helpers. Nothing here is app-specific.
 
+export const LAW_GROUP_NAMES = { "International Law": "International Law", IHL: "International Humanitarian Law", ICL: "International Criminal Law", IHRL: "International Human Rights Law" };
+export const lawGroupName = (g) => LAW_GROUP_NAMES[g] || g;
+
 /** Tiny hyperscript helper so views can build DOM without a template engine.
  *  h('div', {className: 'card', onClick: fn}, ['text', childEl]) */
 export function h(tag, props = {}, children = []) {

@@ -76,6 +76,16 @@ export function newDraft(name) {
   return draft;
 }
 
+export function deleteDraft(id) {
+  delete store.drafts[id];
+  const [next] = listDrafts();
+  if (next) {
+    store.activeDraftId = next.id;
+    persist();
+    notify();
+  } else newDraft("Draft 1");
+}
+
 export function switchDraft(id) {
   if (store.drafts[id]) {
     store.activeDraftId = id;
@@ -148,6 +158,7 @@ export function restoreProvisionText(provisionId) {
   touch(draft);
 }
 
+// Edits to attached definitions and law clauses share one map (their ids never collide).
 export function editDefinitionText(id, text) {
   const draft = getActiveDraft();
   const custom = draft.customDefinitions.find((c) => c.id === id);
@@ -188,6 +199,7 @@ export function addCustomDefinition(term, text) {
 export function pinItem(id) {
   const draft = getActiveDraft();
   if (!draft.pinned.includes(id)) draft.pinned.push(id);
+  draft.excluded = (draft.excluded || []).filter((x) => x !== id);
   touch(draft);
 }
 export function unpinItem(id) {
@@ -196,9 +208,25 @@ export function unpinItem(id) {
   touch(draft);
 }
 
+/** Drop an auto-attached definition or law clause, even while a provision uses it. */
+export function excludeItem(id) {
+  const draft = getActiveDraft();
+  draft.pinned = draft.pinned.filter((p) => p !== id);
+  (draft.excluded ??= []).push(id); // old drafts lack this field
+  touch(draft);
+}
+
+export function restoreExcluded() {
+  const draft = getActiveDraft();
+  draft.excluded = [];
+  touch(draft);
+}
+
 export function setOptionSelection(optionId, choice) {
   const draft = getActiveDraft();
-  draft.optionSelections[optionId] = choice;
+  if (optionId === "o-context") return setContext(Object.keys(CONTEXT_LABELS).find((k) => CONTEXT_LABELS[k] === choice) || null);
+  if (choice) draft.optionSelections[optionId] = choice;
+  else delete draft.optionSelections[optionId];
   touch(draft);
 }
 
@@ -271,6 +299,10 @@ export function getAttachments(db) {
   for (const id of draft.pinned) {
     if (db.byId.definitions.has(id)) definitions.add(id);
     if (db.byId.lawClauses.has(id)) lawClauses.add(id);
+  }
+  for (const id of draft.excluded || []) {
+    definitions.delete(id);
+    lawClauses.delete(id);
   }
   return { definitions, lawClauses, byDefinition, byLaw };
 }

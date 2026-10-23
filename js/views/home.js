@@ -22,7 +22,7 @@ export function renderHome({ mountEl, db }) {
       h("section", { className: "hero" }, [
         canvas,
         h("h1", {}, lines.map((line) => h("span", {}, line))),
-        h("p", { className: "hero-lede" }, t(db, "home.hero_subtitle", "A practical framework for mediators, negotiators, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict and other security contexts.")),
+        h("p", { className: "hero-lede" }, t(db, "home.hero_subtitle", "A practical framework for mediators, parties, and affected communities to negotiate, draft, and implement ceasefire, de-escalation, and other agreements to constrain digital operations during conflict and other security contexts.")),
       ]),
       h(
         "nav",
