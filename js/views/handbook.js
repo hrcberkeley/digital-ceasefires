@@ -3,7 +3,7 @@ import { HANDBOOK_PDF_URL } from "../config.js";
 import { t as siteText } from "../data.js";
 import { resolveForReading } from "../tokens.js";
 import { buildTermMatcher, linkifyTerms } from "../terms.js";
-import { addProvision } from "../state.js";
+import { addProvision, getActiveDraft, isHandbookView, setHandbookView } from "../state.js";
 import { toast } from "../utils.js";
 
 // Both float with position:fixed but are appended inside the view's own root
@@ -64,7 +64,7 @@ function defByTermMap(db) {
 function renderProvisionBlock(provision, db, matcher) {
   const el = h("div", { className: "provision", id: `prov-${provision.provision_id}` });
   el.appendChild(renderTextBlock(provision.text, provision.footnote_ids, db, matcher));
-  if (provision.section_id === "s-note-to-users") return el; // guidance, not agreement text
+  if (provision.section_id === "s-note-to-users" || !isHandbookView()) return el; // guidance, not agreement text
 
   el.classList.add("provision--actionable");
   const actions = h("div", { className: "provision-actions" });
@@ -108,7 +108,7 @@ function renderDefinitionsSection(db, matcher) {
 
 // The reader intro is one Markdown row in site_text (handbook.intro); this is the
 // same text, used only if that row is missing.
-const HANDBOOK_INTRO_FALLBACK = `The full text of the Digital Ceasefire & De-escalation Handbook is available here, section by section, or it can be downloaded in full in [PDF format](#handbook-pdf). The Handbook guides users through the process of developing an Agreement, either by selecting appropriate provisions of the Handbook into an Agreement or by using the Platform's [Build an Agreement function](#/builder). We recommend starting with reading the [Note to Users](#/handbook/s-note-to-users) below. Sections 1.0 through 11.0 then provide model provisions that can be selected, adapted, and combined to construct an Agreement tailored to different conflict and security contexts.`;
+const HANDBOOK_INTRO_FALLBACK = `The full text of the Digital Ceasefire & De-escalation Handbook is available here, section by section, or it can be downloaded in full in [PDF format](#handbook-pdf). The Handbook guides users through the process of developing an Agreement, using the Platform's [Build an Agreement function](#/builder). We recommend starting with reading the [Note to Users](#/handbook/s-note-to-users) below. Sections 1.0 through 11.0 then provide model provisions that can be selected, adapted, and combined in [Build an Agreement](#/builder) to construct an Agreement tailored to different conflict and security contexts.`;
 
 const LAW_GROUP_ORDER = ["International Law", "IHL", "ICL", "IHRL"];
 
@@ -185,6 +185,14 @@ export function renderHandbook({ mountEl, db, params }) {
   const tocDetails = h("details", { className: "toc-details", open: window.matchMedia("(min-width: 769px)").matches }, [h("summary", {}, "Contents"), toc]);
   const content = h("div", { className: "prose" });
   content.appendChild(h("h1", {}, siteText(db, "handbook.title", "The Handbook")));
+  if (isHandbookView()) {
+    const bar = h("div", { className: "note-banner compact small cluster" }, [
+      h("span", {}, `Handbook view: adding provisions to ${getActiveDraft().name}`),
+      h("a", { href: "#/builder" }, "Back to Build an Agreement"),
+      h("button", { className: "btn btn-sm btn-ghost", onClick: () => { setHandbookView(false); bar.remove(); content.querySelectorAll(".provision-actions").forEach((e) => e.remove()); } }, "Turn off"),
+    ]);
+    content.appendChild(bar);
+  }
   content.appendChild(renderIntro(db));
   for (const s of topSections) content.appendChild(renderSection(s, db, matcher, 2));
   content.appendChild(renderFootnotesList(db));

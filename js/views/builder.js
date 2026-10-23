@@ -82,7 +82,7 @@ function renderIntro(db, draft, ui, redraw) {
       h("div", { className: "cluster" }, [
         button(siteText(db, "builder.start_scratch", "Build from scratch"), () => document.querySelector(".search-input")?.focus(), "btn-primary"),
         button(siteText(db, "builder.start_full", "Start with the full Agreement"), () => { state.addEverything(db, BUILDER_SECTION_IDS(db)); redraw(); }),
-        h("a", { className: "btn", href: "#/handbook" }, siteText(db, "builder.start_handbook", "Use the Handbook")),
+        handbookViewLink(db),
       ])
     );
   }
@@ -95,7 +95,7 @@ To get started, choose one of three approaches:
 
 - **Build from scratch:** Select the provisions you wish to include from the left-hand column and add them to your Agreement in the right-hand column.
 - **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then remove those that are not relevant.
-- **Use the Handbook:** Read the [Handbook](#/handbook) section by section and add provisions to your Agreement as you go.
+- **Use Handbook view:** Read the Handbook section by section and add provisions to your Agreement as you go.
 
 Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
 
@@ -107,6 +107,8 @@ A few things to note:
 
 - Terms that are defined will be included in the Definitions section, which you can add to.
 - Relevant footnotes will also be included in the final Agreement.`;
+
+const handbookViewLink = (db) => h("a", { className: "btn", href: "#/handbook", onClick: () => state.setHandbookView(true) }, siteText(db, "builder.start_handbook", "Use Handbook view"));
 
 function renderHeader(db, draft, ui, redraw) {
   const drafts = state.listDrafts();
@@ -139,6 +141,7 @@ function renderHeader(db, draft, ui, redraw) {
         h("label", { className: "small muted" }, siteText(db, "context.label", "Context")),
         contextSelect(db, draft),
         button(siteText(db, "builder.settings", "Settings"), () => { ui.showSettings = !ui.showSettings; redraw(); }),
+        handbookViewLink(db),
         exportMenu,
       ]),
     ]),

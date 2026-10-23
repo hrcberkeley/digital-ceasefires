@@ -70,7 +70,7 @@ The website was created by the Investigations Lab, Human Rights Center. **AI Dis
 Contact: Betsy Popken at [bpopken@berkeley.edu](mailto:bpopken@berkeley.edu) or Brett Solomon at [solomonbrett@gmail.com](mailto:solomonbrett@gmail.com)
 
 [Explore the Handbook](#/handbook) | [Build an Agreement](#/builder) | [Request Support](mailto:bpopken@berkeley.edu)",About page body (Markdown)
-handbook.intro,"The full text of the Digital Ceasefire & De-escalation Handbook is available here, section by section, or it can be downloaded in full in [PDF format](#handbook-pdf). The Handbook guides users through the process of developing an Agreement, either by selecting appropriate provisions of the Handbook into an Agreement or by using the Platform's [Build an Agreement function](#/builder). We recommend starting with reading the [Note to Users](#/handbook/s-note-to-users) below. Sections 1.0 through 11.0 then provide model provisions that can be selected, adapted, and combined to construct an Agreement tailored to different conflict and security contexts.",Handbook reader intro (Markdown)
+handbook.intro,"The full text of the Digital Ceasefire & De-escalation Handbook is available here, section by section, or it can be downloaded in full in [PDF format](#handbook-pdf). The Handbook guides users through the process of developing an Agreement, using the Platform's [Build an Agreement function](#/builder). We recommend starting with reading the [Note to Users](#/handbook/s-note-to-users) below. Sections 1.0 through 11.0 then provide model provisions that can be selected, adapted, and combined in [Build an Agreement](#/builder) to construct an Agreement tailored to different conflict and security contexts.",Handbook reader intro (Markdown)
 builder.intro_title,Build Your Own Agreement,Builder page heading
 builder.intro,"Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](#/handbook/s-note-to-users) before you begin.
 
@@ -78,7 +78,7 @@ To get started, choose one of three approaches:
 
 - **Build from scratch:** Select the provisions you wish to include from the left-hand column and add them to your Agreement in the right-hand column.
 - **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then remove those that are not relevant.
-- **Use the Handbook:** Read the [Handbook](#/handbook) section by section and add provisions to your Agreement as you go.
+- **Use Handbook view:** Read the Handbook section by section and add provisions to your Agreement as you go.
 
 Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
 

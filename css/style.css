@@ -18,6 +18,15 @@
   --color-warning: #9a6a11;
   --color-warning-soft: #fbf0da;
   --color-focus: #2f6fed;
+  /* Handbook cover palette (home hero) */
+  --cover-navy: #0b386e;
+  --cover-blue: #0b6a8e;
+  --cover-teal: #13919c;
+  --cover-sea: #6db5a5;
+  --cover-cream: #fbe3b6;
+  --cover-peach: #f7ae6e;
+  --cover-orange: #f26a30;
+  --cover-red: #e8391d;
 
   --font-serif: "Open Sans", system-ui, sans-serif;
   --font-sans: "Open Sans", system-ui, sans-serif;
@@ -169,6 +178,11 @@ button { font: inherit; }
 .hero h1 span:nth-child(2) { padding-left: 10%; color: var(--color-primary); }
 .hero h1 span:nth-child(3) { padding-left: 5%; }
 .hero-lede { font-size: 1.2rem; line-height: 1.5; margin: 0; }
+/* home hero sits on the cover's navy; the bands close it at the bottom */
+.chevron-field { mask-image: none; }
+.home .hero { color: #fff; padding-bottom: clamp(7rem, 24vh, 12rem) !important; }
+.home .hero h1 span:nth-child(2) { color: var(--cover-peach); }
+.home .hero-lede { color: var(--cover-cream); }
 .home-rows { border-top: 1px solid var(--color-ink); margin-bottom: var(--space-7); }
 .home-row {
   display: grid; grid-template-columns: 3rem 1fr 1fr 2rem; gap: var(--space-5); align-items: baseline;

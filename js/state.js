@@ -353,3 +353,6 @@ export function freezeProvisionText(provisionId, db) {
   entry.acknowledgedVersion = db.byId.provisions.get(provisionId)?.version_changed;
   touch(draft);
 }
+
+export const isHandbookView = () => { try { return sessionStorage.getItem("ceasefire:handbookView") === "1"; } catch { return false; } };
+export function setHandbookView(on) { try { on ? sessionStorage.setItem("ceasefire:handbookView", "1") : sessionStorage.removeItem("ceasefire:handbookView"); } catch { /* unavailable */ } }

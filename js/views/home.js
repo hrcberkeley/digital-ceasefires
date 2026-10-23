@@ -1,6 +1,6 @@
 import { h } from "../utils.js";
 import { t } from "../data.js";
-import { signalField } from "../signal.js";
+import { chevronField } from "../signal.js";
 
 export function renderHome({ mountEl, db }) {
   const options = [
@@ -15,7 +15,7 @@ export function renderHome({ mountEl, db }) {
   const lines = [];
   for (let i = 0; i < words.length; i += per) lines.push(words.slice(i, i + per).join(" "));
 
-  const canvas = h("canvas", { className: "signal-field", "aria-hidden": "true" });
+  const canvas = h("canvas", { className: "signal-field chevron-field", "aria-hidden": "true" });
 
   mountEl.appendChild(
     h("div", { className: "container home" }, [
@@ -38,6 +38,6 @@ export function renderHome({ mountEl, db }) {
       ),
     ])
   );
-  signalField(canvas);
+  chevronField(canvas);
 }
 

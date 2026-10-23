@@ -131,10 +131,10 @@ SITE_TEXT = [{'key': 'site.title', 'text': 'Digital Ceasefire Platform', 'notes'
  {'key': 'handbook.intro',
   'text': 'The full text of the Digital Ceasefire & De-escalation Handbook is available here, section by section, or '
           'it can be downloaded in full in [PDF format](#handbook-pdf). The Handbook guides users through the process '
-          'of developing an Agreement, either by selecting appropriate provisions of the Handbook into an Agreement or '
-          "by using the Platform's [Build an Agreement function](#/builder). We recommend starting with reading the "
+          'of developing an Agreement, '
+          "using the Platform's [Build an Agreement function](#/builder). We recommend starting with reading the "
           '[Note to Users](#/handbook/s-note-to-users) below. Sections 1.0 through 11.0 then provide model provisions '
-          'that can be selected, adapted, and combined to construct an Agreement tailored to different conflict and '
+          'that can be selected, adapted, and combined in [Build an Agreement](#/builder) to construct an Agreement tailored to different conflict and '
           'security contexts.',
   'notes': 'Handbook reader intro (Markdown)'},
  {'key': 'builder.intro_title', 'text': 'Build Your Own Agreement', 'notes': 'Builder page heading'},
@@ -148,7 +148,7 @@ SITE_TEXT = [{'key': 'site.title', 'text': 'Digital Ceasefire Platform', 'notes'
           'to your Agreement in the right-hand column.\n'
           "- **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then "
           'remove those that are not relevant.\n'
-          '- **Use the Handbook:** Read the [Handbook](#/handbook) section by section and add provisions to '
+          '- **Use Handbook view:** Read the Handbook section by section and add provisions to '
           'your Agreement as you go.\n'
           '\n'
           'Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand '
