@@ -371,7 +371,7 @@ body:has(.home) .site-footer { margin-top: var(--space-5); }
 /* ---------- Responsive: single column below 768px, builder switches to tap-to-add ---------- */
 @media (max-width: 768px) {
   .container { padding: 0 var(--space-4); }
-  .signal-field { opacity: 0.4; } /* traces read as noise on a small screen */
+  .signal-field:not(.chevron-field) { opacity: 0.4; } /* traces read as noise on a small screen; the home hero's navy stays solid */
   .grid-two, .builder-shell { grid-template-columns: 1fr; }
   .toc { position: static; max-height: none; margin-bottom: var(--space-5); }
   .hero { grid-template-columns: 1fr; gap: var(--space-5); min-height: 0; }
