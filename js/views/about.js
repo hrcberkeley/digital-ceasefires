@@ -25,7 +25,7 @@ The Digital Ceasefire team is available to provide advice, technical assistance,
 
 The website was created by the Investigations Lab, Human Rights Center. **AI Disclosure:** This platform was created using a combination of cloud and local models and LLM harnesses. All the text was produced by humans.
 
-Contact: Betsy Popken at [bpopken@berkeley.edu](mailto:bpopken@berkeley.edu) or Brett Solomon at [solomonbrett@gmail.com](mailto:solomonbrett@gmail.com)
+Contact: Betsy Popken at [bpopken@berkeley.edu](mailto:bpopken@berkeley.edu) or Brett Solomon at [brett@brettsolomon.info](mailto:brett@brettsolomon.info)
 
 [Explore the Handbook](#/handbook) | [Build an Agreement](#/builder) | [Request Support](mailto:bpopken@berkeley.edu)`;
 

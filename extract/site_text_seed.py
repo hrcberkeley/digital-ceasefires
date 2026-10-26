@@ -123,7 +123,7 @@ SITE_TEXT = [{'key': 'site.title', 'text': 'Digital Ceasefire Platform', 'notes'
           'humans.\n'
           '\n'
           'Contact: Betsy Popken at [bpopken@berkeley.edu](mailto:bpopken@berkeley.edu) or Brett Solomon at '
-          '[solomonbrett@gmail.com](mailto:solomonbrett@gmail.com)\n'
+          '[brett@brettsolomon.info](mailto:brett@brettsolomon.info)\n'
           '\n'
           '[Explore the Handbook](#/handbook) | [Build an Agreement](#/builder) | [Request '
           'Support](mailto:bpopken@berkeley.edu)',
