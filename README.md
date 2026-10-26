@@ -1,7 +1,7 @@
 # Digital Ceasefire Platform
 
 Static site for the HRC Digital Ceasefire & Deescalation
-Handbook (working draft v1.4). Built from `Digital Ceasefire Platform PRD and Build
+Handbook (v1.5, October 2026). Built from `Digital Ceasefire Platform PRD and Build
 Handoff.pdf`. This file is the map of what exists and what you still need to do on
 the Google side (nothing here can create a Google Sheet for you — that needs your
 own account).
@@ -51,23 +51,28 @@ appear on the site within about 5 minutes — Google's own publish delay).
 
 ```bash
 cd extract
-uv run extract.py --source path/to/new-handbook.md --version 1.5 --outdir ../data --previous ../data
+pandoc ../source/new-handbook.docx -t markdown-smart --wrap=none --lua-filter docx_to_md.lua -o ../source/new-handbook.md
+uv run extract.py --source ../source/new-handbook.md --version 1.5 --outdir ../data --previous ../data
 uv run build_snapshot.py --data ../data --out ../data/snapshot.json
-uv run build_workbook.py --data ../data --out "../Digital Ceasefire Platform.xlsx"
+uv run --with openpyxl build_workbook.py --data ../data --out "../Digital Ceasefire Platform.xlsx"
 ```
 
-Read `data/diff_report.md` before importing — it lists new/changed/retired rows
+Read `data/diff_report.md` before importing -- it lists new/changed/retired rows
 and flags things worth a human look (duplicate paragraphs, headings that are
-bold text instead of real markdown headings, table-of-contents mismatches,
-capitalized phrases that look like a near-miss of a defined term). Stable IDs
-carry over automatically; a removed provision is marked `retired`, never reused.
+bold text instead of real headings, table-of-contents mismatches, capitalized
+phrases that look like a near-miss of a defined term). Stable IDs carry over
+automatically; a removed provision is marked `retired`, never reused.
 
-The extractor's input is the handbook's **markdown export**, not the raw PDF —
-it already has clean headings, footnote markers, and preserved italics, which is
-strictly more reliable than re-deriving that structure from PDF layout. If a
-future version only ships as `.docx`/PDF, export it to markdown the same way
-(Google Docs > File > Download > Markdown, or pandoc) before pointing
-`--source` at it.
+`docx_to_md.lua` turns the Word file into the markdown shape `extract.py`
+expects: it drops underline/highlight styling, unwraps indented paragraphs, and
+turns each boxed "Note to Users" (section guidance) into guidance paragraphs.
+
+Then update the Google Sheet tab by tab, so each tab keeps its gid (and the
+published CSV URLs in `js/config.js` keep working): open the tab, File > Import >
+Upload `data/<tab>.csv` > **Replace current sheet**. Do this for `sections`,
+`provisions`, `options`, `definitions`, `law_clauses`, `footnotes` (`site_text`
+and `posts` only if their seeds changed). Don't use "Replace spreadsheet" --
+that recreates the tabs with new gids and breaks the published links.
 
 ## Design choices I made where the PRD was silent
 

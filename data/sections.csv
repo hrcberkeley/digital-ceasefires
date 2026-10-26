@@ -1,51 +1,134 @@
 section_id,parent_id,number,title,guidance,order,status
 s-note-to-users,,note-to-users,Note to Users,,1,published
-s-1.0,,1.0,Preamble,"Preambles typically include the purpose of the agreement; the motivations of the parties; relevant principles, history, or values; and the context that informs the interpretation of the provisions. Parties may include all of these provisions, just a few of them, or none at all.",2,published
-s-2.0,,2.0,Entry into Force,"Entry into force provisions define the exact time and date the Agreement begins, the conditions that must be satisfied before it begins, and/or the mechanism through which it becomes effective.",3,published
-s-3.0,,3.0,Prohibited Digital Operations,"This section is modeled after a Prohibited Acts section in a traditional ceasefire agreement, which identifies the specific actions the Parties may not perform during the period the agreement is in effect. Such provisions vary in their level of detail. Some agreements have broad prohibited acts, simply prohibiting the parties from using any kind of military force, while others provide a detailed list to make it very clear to the Parties what may constitute a breach.
+s-1.0,,1.0,Preamble,"Preambles typically include the purpose of the Agreement; the motivations of the parties; relevant principles, history, and values; and the context that informs the interpretation of the provisions.
 
-This section first provides broad provisions the Parties may use to cease Prohibited Digital Acts against Civilian Objects, Military Objectives, and Dual-Use objects. The section is then divided into three categories so the Parties can choose provisions that are specific to their particular context: (1) Internet Interference; (2) Information Threats; and (3) Cyber Attacks. Parties may include all of these provisions, just a few of them, or none at all. Nothing in this Agreement shall be interpreted as diminishing the protections afforded to civilians and Civilian Objects under International Humanitarian Law.",4,published
-s-3.1,s-3.0,3.1,Internet Interference,"These provisions seek to preserve the availability and integrity of the internet as foundational civilian infrastructure, military infrastructure, and Dual-Use systems, essential to communication, access to information, and the functioning of society in times of Armed Conflict, Grey Zone Activity, and Internal Disturbance.",5,published
+The Preamble provides a broad menu of provisions that Parties may select, modify, or omit according to the context and purpose of their Agreement. Not all provisions are intended for inclusion by Parties.
+
+Parties should distinguish between language that provides context, recognizes principles or marginalized groups, or expresses shared aspirations, and substantive commitments intended to guide conduct. Where the latter are included, Parties should consider corresponding operative and monitoring provisions.
+
+An expansive Preamble may be appropriate in some contexts, while in others a shorter Preamble may better facilitate negotiation and Agreement. The provisions below are therefore options and should be selected and adapted as appropriate. Parties may therefore include all of these provisions, just a few of them, or none at all.",2,published
+s-2.0,,2.0,Entry into Force,"Entry into force provisions define the exact time and date the Agreement begins, the conditions that must be satisfied before it begins, and/or the mechanism through which it becomes effective.
+
+Prior to an Agreement entering into force, Parties typically establish mechanisms for addressing breaches to the Agreement, such as consultation, review, suspension, or termination, before the Agreement enters into force.
+
+The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",3,published
+s-3.0,,3.0,Prohibited Digital Operations,"This section is modeled after the Prohibited Acts section in a ceasefire Agreement, which identifies the specific actions the Parties agree to cease and therefore may not perform during the period the Agreement is in effect. Essentially, Prohibited Digital Operations are Digital Operations the Parties agree to cease under the Agreement.
+
+If Parties are unable to agree to prohibit Digital Operations, they view cessation as infeasible or undesirable, or they wish to actively limit but not comprehensively cease certain activities, they can instead agree to de-escalate Digital Operations. In that case, Parties could instead use the term “De-escalated Digital Operations” and language such as “reduce” or ""mitigate"" or “de-escalate” instead of “cease” or “stop” or “prohibit.” Parties could then set a numerical or percentage threshold for De-escalation or set a frequency-based, severity-based, or impact-based threshold. For example, Parties could agree to reduce the number of Cyber Attacks or Internet Shutdowns over a specified period, limit the duration or geographic scope of such disruptions, reduce the scale of Information Interference campaigns, or establish measurable targets for reducing civilian harm. Such commitments could be time-bound, progressively strengthened, and subject to monitoring and verification to assess compliance and progress toward De-escalation. This Handbook is structured around Prohibited Digital Operations, but each provision can be adapted to be a De-escalated Digital Operation.
+
+Such provisions vary in their level of detail. Some Agreements have broad prohibited acts, simply prohibiting the parties from using any kind of military force, while others provide a detailed list to make it very clear to the Parties what may constitute a breach.
+
+This section first provides broad provisions the Parties may use to cease Prohibited Digital Operations against Civilian Objects, Military Objectives, and Dual-Use objects. The section is then divided into three categories so the Parties can choose provisions that are specific to their particular context: (1) Internet Interference; (2) Information Threats; and (3) Cyber Attacks.
+
+Parties may have different reasons for prohibiting a Digital Operation under an Agreement, including the level of harm it may cause, the risk of escalation, or the threat it poses to a ceasefire or De-escalation process. However, provisions concerning Prohibited Digital Operations should be negotiated, agreed upon, and respected by all Parties.
+
+In agreeing to Prohibited Digital Operations provisions, Parties should be aware of and distinguish between operations directed at Military Objectives and those directed at civilians and Civilian Objects, including civilian infrastructure and services. Parties should also consider that the immediate target may differ from the object or persons ultimately affected, and that harm may spread across interconnected systems, emerge over time, or extend beyond the intended target. Provisions may therefore address not only what may be targeted, but also the direct, indirect, and reasonably foreseeable harm that an operation may cause to Civilian Objects and/or the effect on Military Objectives.
+
+Prohibited Digital Operations agreed to by the Parties does not necessarily mean that they are prohibited under International Law. Nothing in this Agreement shall be interpreted as diminishing the protections afforded under International Law.
+
+Parties may agree to refrain from otherwise lawful Digital Operations in furtherance of restraint, De-escalation, confidence-building, or the cessation of hostilities.
+
+The provisions below are options and should be selected and adapted as appropriate. Parties may wish to add more specificity to the provisions based on their particular situation. Parties may include all of the provisions, just a few of them, or none at all.",4,published
+s-3.1,s-3.0,3.1,Internet Interference,"These provisions seek to preserve the availability and integrity of the internet as essential to communication, access to information, and the functioning of society in times of Armed Conflict, Grey Zone Activity, and Internal Disturbance.
+
+Internet Interference can take many forms. It may be indiscriminate, affecting entire countries and populations. In other contexts, disruptions may be highly targeted, affecting specific regions, neighborhoods, or communities, including along ethnic, religious, or political lines. Interference may also vary in duration and severity, ranging from temporary Throttling or blocking of particular services or sites to prolonged or complete shutdowns.
+
+Internet Interference can be identified through open-source monitoring, but determining its cause, attribution, and intent may be significantly more difficult. Monitoring mechanisms can therefore establish appropriate methodologies and evidentiary standards for assessing alleged violations and distinguishing deliberate disruption from technical failures or the effects of kinetic operations.
+
+If Parties instead agree to limit or de-escalate Internet Interference, they can establish measurable targets, such as reducing the number or frequency of incidents by a specified percentage, limiting their duration or severity, or reducing their geographic scope or impact on civilians.
+
+The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",5,published
 s-3.1.1,s-3.1,3.1.1,Internet Shutdowns,,6,published
-s-3.1.2,s-3.1,3.1.2,Attacks on Internet Infrastructure,,7,published
+s-3.1.2,s-3.1,3.1.2,Internet Infrastructure Attacks,,7,published
 s-3.1.3,s-3.1,3.1.3,Electronic Jamming,,8,published
-s-3.1.4,s-3.1,3.1.4,Due Diligence and Third-Party Responsibility,,9,published
-s-3.1.5,s-3.1,3.1.5,Humanitarian and Emergency Connectivity,,10,published
-s-3.2,s-3.0,3.2,Information Threats,"These provisions aim to protect the integrity of the information environment by limiting coercive, deceptive, and manipulative practices that undermine the Agreement or threaten public trust, democratic processes, and civilian protection in times of Armed Conflict, Grey Zone Activity, and Internal Disturbance, including information operations directed against the Parties to the Agreement. No provisions should be included in the Agreement that restrict lawful expression.",11,published
-s-3.2.1,s-3.2,3.2.1,Disinformation and Misinformation,,12,published
-s-3.2.2,s-3.2,3.2.2,Manipulated Media and Inauthentic Behaviour,,13,published
-s-3.2.3,s-3.2,3.2.3,Doxxing,,14,published
-s-3.2.4,s-3.2,3.2.4,Online Incitement to Violence,,15,published
-s-3.2.5,s-3.2,3.2.5,Hate Speech,,16,published
-s-3.2.6,s-3.2,3.2.6,Online Recruitment,,17,published
-s-3.2.7,s-3.2,3.2.7,Online Advertisements,,18,published
-s-3.2.8,s-3.2,3.2.8,Attacks on Humanitarian Information and Data,,19,published
-s-3.2.9,s-3.2,3.2.9,Actions Against Journalists and Media,,20,published
-s-3.3,s-3.0,3.3,Cyber Attacks,"These provisions prohibit common hostile cyber techniques used to gain unauthorized access to information, conduct Surveillance, and disrupt or manipulate Digital systems. States sometimes conduct Cyber Attacks against the military or political infrastructure of another State in lieu of traditional kinetic attacks. For this reason, Parties may be reluctant to accept a prohibition on all Cyber Attacks. Instead, they may wish to focus on limiting the most harmful and destabilizing forms of cyber activity, particularly those affecting civilian populations and essential infrastructure. Parties agreeing to cease Cyber Attacks should make clear in the Agreement that doing so does not enable any Party to conduct traditional kinetic attacks.",21,published
-s-3.3.1,s-3.3,3.3.1,Surveillance and Spyware,,22,published
-s-3.3.2,s-3.3,3.3.2,Hacking,,23,published
-s-3.3.3,s-3.3,3.3.3,Malware,,24,published
-s-3.3.4,s-3.3,3.3.4,Distributed Denial of Service Attack (DDOS),,25,published
-s-3.3.5,s-3.3,3.3.5,Phishing,,26,published
-s-3.3.6,s-3.3,3.3.6,Critical Infrastructure,,27,published
-s-4.0,,4.0,Third Parties to the Agreement,"A Third Party is any entity that becomes involved in the Armed Conflict, Grey Zone Activity, or Internal Disturbance either by engaging in it or by assisting one or more of the Parties. Traditional ceasefire agreements often address the involvement of Third Parties in the Armed Conflict. When Third Parties are participants in the Armed Conflict, Grey Zone Activity, or Internal Disturbance, the Parties may agree to prohibit the acts of Third Parties within their effective control. The Parties may, for the purposes of this Agreement, accept responsibility for the actions of Third Parties over which they do not have effective control per se, including where the Party provides direction or support, or enables non-State actors, such as patriotic hackers and Cyber Mercenaries. Parties may include all of these provisions, just a few of them, or none at all.",28,published
-s-4.1,s-4.0,4.1,Proxy Actors,,29,published
-s-4.2,s-4.0,4.2,Cyber Mercenaries,,30,published
-s-4.3,s-4.0,4.3,Third Party States,,31,published
-s-4.4,s-4.0,4.4,Information and Communications Technology Companies,,32,published
-s-5.0,,5.0,Permissible Digital Operations,"Traditional ceasefire agreements often include humanitarian provisions intended to protect and provide aid to refugees, internally displaced persons, humanitarian workers, and prisoners of war. Similar provisions can also be included in an Agreement which addresses the Digital components of Armed Conflict, Grey Zone Activity, or Internal Disturbance. Parties may include all of these provisions, just a few of them, or none at all.",33,published
-s-6.0,,6.0,Digital Monitoring Commission,"This section is modeled after monitoring commissions often included in traditional ceasefire agreements. Ceasefire agreements sometimes create a commission which can have a range of roles with respect to the ceasefire. These can include: being responsible for information sharing between the parties to the agreement and with the commission; monitoring the parties’ compliance with the terms of the agreement; verifying any alleged breaches to the agreement’s provisions; and reporting on alleged and/or confirmed breaches.
+s-3.1.4,s-3.1,3.1.4,Third Party Internet Interference,,9,published
+s-3.1.5,s-3.1,3.1.5,Humanitarian and Emergency Connectivity Disruptions,,10,published
+s-3.1.6,s-3.1,3.1.6,Artificial Intelligence-Enabled Internet Interference,,11,published
+s-3.2,s-3.0,3.2,Information Threats,"These provisions aim to protect the integrity of the information environment by limiting coercive, deceptive, and manipulative information related practices that threaten public trust, democratic processes, and civilian protection in times of Armed Conflict, Grey Zone Activity, and Internal Disturbance, including information operations that undermine the Agreement or are directed against the Parties to the Agreement. No provisions should be included in the Agreement that violate the rights of individuals, including their rights to freedom of expression, access to information, and privacy.
 
-Monitoring commissions often hold the parties accountable for the acts they agree to cease and can act as a deterrent. Sometimes the parties are unable to agree to implement a monitoring body, whether due to the difficulty of monitoring and verifying breaches, geopolitical factors, and/or resource constraints. Ceasefire agreements can be agreed to without a monitoring body, but that means there is no entity to hold the parties accountable for breaches to the agreement. This section applies to situations of Armed Conflict, Grey Zone Activity, and Internal Disturbance. Parties may include all of these provisions, just a few of them, or none at all.",34,published
-s-6.1,s-6.0,6.1,Composition of the Monitoring Commission,,35,published
-s-6.2,s-6.0,6.2,Role of the Monitoring Commission,,36,published
-s-6.2.1,s-6.2,6.2.1,Information Sharing,,37,published
-s-6.2.2,s-6.2,6.2.2,Monitoring,,38,published
-s-6.2.3,s-6.2,6.2.3,Verification,,39,published
-s-6.2.4,s-6.2,6.2.4,Reporting,,40,published
-s-6.2.5,s-6.2,6.2.5,Dispute Resolution,,41,published
-s-7.0,,7.0,Dissemination and Promotion of this Agreement,"Ceasefire agreements often include provisions requiring the parties to communicate the agreement among the parties themselves, but also to inform the general public, Third Party actors, and the international community. If the appropriate stakeholders are not aware of the agreement, there are likely to be violations of the agreement’s terms and a breakdown in trust among the parties. These provisions apply to situations of Armed Conflict, Grey Zone Activity, and Internal Disturbance. Parties may include all of these provisions, just a few of them, or none at all.",42,published
-s-8.0,,8.0,External Support,"Ceasefire agreements typically require significant financial means to implement. Financial support can be secured in advance of the agreement being signed and/or the agreement can include provisions that call for commitments to provide financial support. Financial commitments also provide geopolitical weight behind the agreement. This section applies to Armed Conflict, Grey Zone Activity, and Internal Disturbance. Parties may include all of these provisions, just a few of them, or none at all.",43,published
-s-9.0,,9.0,Definitions,,44,published
-s-10.0,,10.0,Signatures,Traditional ceasefire agreements usually include the signatures of representatives of the parties agreeing to the provisions of the agreement. It is often helpful to include the signatures of Third Party witnesses and other third parties whose compliance and support may be necessary to ensure the agreement’s effective implementation. Third Party signatures may include Information and Communication Technology Companies. Parties may also commit to being responsible for the actions of certain Proxy Actors.,45,published
-s-11.0,,11.0,Annex on Commitment to International Law,,46,published
+To strengthen the enforceability of an Agreement, particularly with respect to Misinformation, Disinformation, and Hate Speech, Parties should tailor the provisions in this section to identify and expressly prohibit specific narratives, content, or practices relevant to the conflict and security challenges they face. Parties may wish to narrow the prohibited Information Threats to a closed list of objectively verifiable acts that cause harm in their particular context. For example, if relevant, the Parties may agree to prohibit (1) fabricated official communications such as statements falsely attributed to the other Party's leadership or the Monitoring Commission; (2) false humanitarian information including announcements of corridors, safe zones, or evacuation routes that are false and issued with intent to deceive; (3) identified individual incitement such as content that names a specific individual and calls for violence against them.
+
+Information Threats may occur in local, tribal, or Indigenous languages. Assessing alleged violations may require substantial linguistic, contextual, and technical expertise that may not be available in real time. Parties may therefore consider linguistic diversity and local cultural contexts when establishing monitoring and response mechanisms.
+
+If Parties instead agree to limit or de-escalate Information Threats, they can establish measurable targets, such as reducing the number or frequency of incidents by a specified percentage, limiting their scale, reach, or severity of the threats, or establish thresholds to reduce their harmful impact on civilians.
+
+The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",12,published
+s-3.2.1,s-3.2,3.2.1,Misinformation and Disinformation,,13,published
+s-3.2.2,s-3.2,3.2.2,Manipulated Media,,14,published
+s-3.2.3,s-3.2,3.2.3,Inauthentic Behavior,,15,published
+s-3.2.4,s-3.2,3.2.4,Doxxing,,16,published
+s-3.2.5,s-3.2,3.2.5,Online Incitement to Violence,,17,published
+s-3.2.6,s-3.2,3.2.6,Hate Speech,,18,published
+s-3.2.7,s-3.2,3.2.7,Online Recruitment and Encouragement,,19,published
+s-3.2.8,s-3.2,3.2.8,Malicious Online Advertisements,,20,published
+s-3.2.9,s-3.2,3.2.9,Interference with Humanitarian Information and Data,,21,published
+s-3.2.10,s-3.2,3.2.10,Harassment of Journalists and Media,,22,published
+s-3.2.11,s-3.2,3.2.11,Intimidating Diaspora,,23,published
+s-3.2.12,s-3.2,3.2.12,Artificial Intelligence-Enabled Information Threats,,24,published
+s-3.3,s-3.0,3.3,Cyber Attacks,"These provisions prohibit hostile Cyber Operations used to gain unauthorized access to information, conduct Surveillance, and disrupt or manipulate Digital systems.
+
+In the context of an Armed Conflict, not all such Cyber Operations constitute “attacks” under International Humanitarian Law; for example, Digital Surveillance or the use of Spyware does not necessarily constitute a Cyber Attack under International Humanitarian Law even if it is a hostile Cyber Operation.
+
+States sometimes conduct Cyber Attacks against the military, or administrative or political infrastructure of another State in lieu of kinetic attacks. States also conduct Cyber Operations to disrupt criminal networks abroad as a routine part of law enforcement operations. For these reasons, Parties may be reluctant to accept a complete prohibition on all Cyber Operations. Instead, they may wish to focus on prohibiting or limiting the most harmful and destabilizing forms of cyber activity, particularly those affecting civilian populations and critical infrastructure.
+
+Parties agreeing to cease Cyber Attacks should make clear in the Agreement that doing so does not enable any Party to conduct kinetic attacks. Parties should make clear that commitments to cease Cyber Attacks do not authorize or justify the commission of kinetic operations, and the Parties should consider how Digital and kinetic ceasefire commitments interact to prevent escalation across domains.
+
+If Parties instead agree to limit or de-escalate Cyber Attacks, they can establish measurable targets, such as reducing the number or frequency of attacks by a specified percentage, limiting their scale, severity, or duration, or reducing their harmful impact on civilians and civilian infrastructure.
+
+The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",25,published
+s-3.3.1,s-3.3,3.3.1,Surveillance and Spyware,,26,published
+s-3.3.2,s-3.3,3.3.2,Hacking,,27,published
+s-3.3.3,s-3.3,3.3.3,Malware,,28,published
+s-3.3.4,s-3.3,3.3.4,Denial of Service (DoS) and Distributed Denial of Service Attacks (DDoS),,29,published
+s-3.3.5,s-3.3,3.3.5,Phishing and Spear Phishing,,30,published
+s-3.3.6,s-3.3,3.3.6,Critical Infrastructure Attacks,,31,published
+s-3.3.7,s-3.3,3.3.7,Weaponization of Digital Infrastructure and Systems,,32,published
+s-3.3.8,s-3.3,3.3.8,Artificial Intelligence-Enabled Cyber Attacks,,33,published
+s-4.0,,4.0,Third Parties,"A Third Party is any person, group, organization, or other entity that becomes involved in the Armed Conflict, Grey Zone Activity, or Internal Disturbance either by assisting one or more of the Parties or by engaging in it as a non-signatory actor. Parties may wish to include provisions in Section 4 to ensure that Third Parties do not undertake or otherwise circumvent any prohibition contained in this Agreement.
+
+These provisions apply to all Prohibited Digital Operations set out in Section 3 and to the relevant Third Parties including Proxy Actors, Cyber Mercenaries, Third Party States, and Information and Technology Communications Companies included in the Agreement.
+
+Parties often address the involvement of Third Parties in an Armed Conflict, either by agreeing to prohibit the actions of those under their control or by agreeing more broadly that the activities of all Proxy Actors shall be prohibited without assigning responsibility.
+
+While the first option more precisely ties in the Parties to the Agreement, the second option may be easier for Parties to agree to. While Parties typically name the Proxy Actors over whom they have control, the Parties may instead choose to set a standard of control that can be applied by the Monitoring Commission. They may agree that the conduct of a specific Prohibited Digital Operation is attributable to a Party where that Party directed or exercised “effective control” over that specific operation (Nicaragua standard). Alternatively, the Parties may agree that every Prohibited Digital Operation conducted by an organized group may be attributable to a Party if that Party exercised “overall control” over the group at the time of the operation (Tadić standard), which may include financing and equipping the group or coordinating or assisting in the general planning of its activities.
+
+These provisions are intended to establish commitments agreed between the Parties and should not be understood as modifying or replacing the applicable rules of attribution or State responsibility under International Law. While the Parties may agree to these commitments, it does not necessarily determine whether such conduct is attributable to a Party under International Law.
+
+If Parties instead agree to limit or De-escalate Digital Operations by Third Parties, they can establish measurable targets, such as reducing the number or frequency of such operations by a specified percentage, limiting their scale, scope, or severity, or reducing their harmful impact on civilians and civilian infrastructure.
+
+The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",34,published
+s-4.1,s-4.0,4.1,Proxy Actors,,35,published
+s-4.2,s-4.0,4.2,Cyber Mercenaries,,36,published
+s-4.3,s-4.0,4.3,Third Party States,,37,published
+s-4.4,s-4.0,4.4,Information and Communications Technology Companies,,38,published
+s-5.0,,5.0,Constructive Digital Operations,"Ceasefire Agreements often include humanitarian provisions intended to protect and provide aid to refugees, internally displaced persons, humanitarian workers, prisoners of war, and other protected persons and non-combatants. Similar positive provisions can also be included in an Agreement which addresses the Digital components of Armed Conflict, Grey Zone Activity, or Internal Disturbance. These may include connectivity, humanitarian information, defensive cybersecurity, Data protection, Confidence Building Measures, or other functions that Parties wish to provision.
+
+The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",39,published
+s-6.0,,6.0,Digital Monitoring Commission,"This section is modeled after monitoring commissions often included in ceasefire Agreements and includes provisions specific to the uniqueness and complexity of Digital Operations. Ceasefire Agreements sometimes create a commission which can have a range of roles with respect to the ceasefire. These can include: being responsible for information sharing between the parties to the Agreement and with the commission; monitoring the parties’ compliance with the terms of the Agreement; verifying any alleged breaches to the Agreement’s provisions; reporting on alleged and/or confirmed breaches; and assisting with dispute resolution between the Parties.
+
+Monitoring commissions can hold the parties accountable for the acts they agree to cease or De-escalate and can act as a deterrent. Sometimes the Parties are unable to agree to implement a monitoring body, whether due to the difficulty of monitoring and verifying breaches, geopolitical factors, and/or resource constraints. While Agreements can be reached without a monitoring body, there would be no entity to hold the parties accountable for breaches to the Agreement. Monitoring can also be conducted by an existing United Nations or regional body mechanism. This section applies to situations of Armed Conflict, Grey Zone Activity, and Internal Disturbance.
+
+If Parties agree to De-escalate Digital Operations instead of ceasing them, the Monitoring Commission can fulfill its roles by evaluating potential breaches by a numerical or percentage threshold for frequency-based, severity-based, or impact-based threshold agreed by the Parties.
+
+The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",40,published
+s-6.1,s-6.0,6.1,Composition of the Monitoring Commission,,41,published
+s-6.2,s-6.0,6.2,Role(s) of the Monitoring Commission,,42,published
+s-6.2.1,s-6.2,6.2.1,Information Sharing,,43,published
+s-6.2.2,s-6.2,6.2.2,Monitoring,,44,published
+s-6.2.3,s-6.2,6.2.3,Examining and Verifying,,45,published
+s-6.2.4,s-6.2,6.2.4,Reporting,,46,published
+s-6.2.5,s-6.2,6.2.5,Dispute Resolution,,47,published
+s-6.3,s-6.0,6.3,Determining Consequences for Verified Breaches,,48,published
+s-7.0,,7.0,Dissemination and Promotion of this Agreement,"Ceasefire Agreements often include provisions requiring the parties to communicate the Agreement among the parties themselves, but also to inform the general public, Third Party actors, and the international community. If the appropriate stakeholders are not aware of the Agreement, there are likely to be violations of the Agreement’s terms and a breakdown in trust among the Parties.
+
+These provisions apply to situations of Armed Conflict, Grey Zone Activity, and Internal Disturbance. The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",49,published
+s-8.0,,8.0,External Support,"Ceasefire Agreements typically require significant financial means to implement. Financial support can be secured in advance of the Agreement being signed and/or the Agreement can include provisions that call for commitments to provide financial support. Financial commitments also provide geopolitical weight behind the Agreement.
+
+This section applies to Armed Conflict, Grey Zone Activity, and Internal Disturbance. The provisions below are options and should be selected and adapted as appropriate. Parties may therefore include all of the provisions, just a few of them, or none at all.",50,published
+s-9.0,,9.0,Definitions,,51,published
+s-10.0,,10.0,Signatures,"Ceasefire Agreements usually include the signatures of representatives of the parties agreeing to the provisions of the Agreement. It is often helpful to include the signatures of Third Party witnesses and other Third Parties whose compliance and support may be necessary to ensure the Agreement’s effective implementation. Third Party signatures may include Information and Communication Technology Companies. Parties may also commit to being responsible for the actions of certain Proxy Actors.
+
+Parties to this Agreement understand that Party representative signatures are required to bring the Agreement into force. Signatories must have the authority to conclude such an Agreement on behalf of the Party.
+
+Third Parties serving as [mediators] [witnesses] [assisting in the implementation and monitoring of the Agreement] shall include their signatures to ensure compliance with this Agreement.",52,published
+s-11.0,,11.0,Annex on Commitment to International Law,,53,published

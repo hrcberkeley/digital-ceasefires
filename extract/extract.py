@@ -28,7 +28,7 @@ CONTEXT_TERMS = set(CONTEXT_CODES)
 
 # bracket choices that look like fill-in-the-blank signature fields, not real
 # alternatives -- these are left as literal text instead of becoming options.
-NON_OPTION_PREFIXES = re.compile(r"^(name of|designate|location of|date,)", re.I)
+NON_OPTION_PREFIXES = re.compile(r"^(name of|designate|location of|date,|ict company [0-9])", re.I)
 
 FIELDNAMES = {
     "sections": ["section_id", "parent_id", "number", "title", "guidance", "order", "status"],
@@ -77,6 +77,9 @@ def read_source(path: Path) -> str:
     distinct from real [link](url)/[^N] syntax which is left unescaped. Unescape them
     globally so \\[Armed Conflict\\] reads as the bracket placeholder it is."""
     raw = path.read_text(encoding="utf-8")
+    # pandoc writes <https://x> / <a@b> autolinks; the Google export (and the site) use [x](x)
+    raw = re.sub(r"<(https?://[^<>\s]+)>", r"[\1](\1)", raw)
+    raw = re.sub(r"<([^<>\s@]+@[^<>\s]+)>", r"[\1](mailto:\1)", raw)
     return raw.replace("\\[", "[").replace("\\]", "]")
 
 
@@ -199,7 +202,7 @@ def parse_footnotes(path: Path) -> dict[str, dict]:
             continue
         num, text = m.group(1), re.sub(r"\s+", " ", m.group(2)).strip()
         urls = URL_RE.findall(text)
-        footnotes[num] = {"footnote_id": f"fn-{num}", "text": text, "url": urls[0] if urls else ""}
+        footnotes[num] = {"footnote_id": f"fn-{num}", "text": text, "url": urls[0].rstrip(".,;") if urls else ""}
     return footnotes
 
 
@@ -207,7 +210,8 @@ def strip_bold(text: str) -> str:
     """Our schema treats provision/definition/guidance text as plain text (the
     reader doesn't run it through a markdown renderer), so leftover **bold**
     syntax from inline emphasis in the source would otherwise show up literally."""
-    return re.sub(r"\*\*(.+?)\*\*", r"\1", text)
+    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
+    return re.sub(r"\*([^*]+)\*", r"\1", text)  # *italic* too (v1.5 italic subheads, "*,*")
 
 
 def strip_footnote_markers(text: str) -> tuple[str, str]:
