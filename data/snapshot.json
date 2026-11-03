@@ -1845,7 +1845,7 @@
 "provision_id": "p-1.0-06",
 "section_id": "s-1.0",
 "order": "6",
-"text": "RECOGNIZING that there may be participants or stakeholders in the {{o-armed-conflict}} that are not Parties to this Agreement, yet critical to its success;",
+"text": "RECOGNIZING that there may be participants or stakeholders in the {{o-context}} that are not Parties to this Agreement, yet critical to its success;",
 "footnote_ids": "",
 "requires_definitions": "",
 "requires_law": "",
@@ -5083,13 +5083,6 @@
 "help": ""
 },
 {
-"option_id": "o-armed-conflict",
-"label": "Armed Conflict",
-"choices": "Armed Conflict|Grey Zone Activities|Internal Disturbances",
-"default": "Armed Conflict",
-"help": ""
-},
-{
 "option_id": "o-upon-signature-of-the",
 "label": "upon signature of the Agreement",
 "choices": "upon signature of the Agreement|on DATE at TIME|upon the following conditions|at a date and time decided by the Digital Monitoring Commission",
@@ -5183,7 +5176,7 @@
 {
 "option_id": "o-verified",
 "label": "verified",
-"choices": "verified|and potential",
+"choices": "verified|verified and potential",
 "default": "verified",
 "help": ""
 }

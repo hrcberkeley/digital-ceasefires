@@ -1,6 +1,5 @@
 option_id,label,choices,default,help
 o-context,Context,Armed Conflict|Grey Zone Activity|Internal Disturbance,Armed Conflict,
-o-armed-conflict,Armed Conflict,Armed Conflict|Grey Zone Activities|Internal Disturbances,Armed Conflict,
 o-upon-signature-of-the,upon signature of the Agreement,upon signature of the Agreement|on DATE at TIME|upon the following conditions|at a date and time decided by the Digital Monitoring Commission,upon signature of the Agreement,
 o-indefinitely,indefinitely,"indefinitely|for a PERIOD OF TIME from the effective date, unless extended by mutual consent of all Parties",indefinitely,
 o-effective-control,Effective Control,Effective Control|Overall Control,Effective Control,
@@ -14,4 +13,4 @@ o-as-the-chairperson,as the Chairperson,as the Chairperson|on the Committee,as t
 o-request,request,request|require,request,
 o-certain-systems-to-allow,certain systems to allow for real-time monitoring,certain systems to allow for real-time monitoring|attested review of logs by an independent Third Party auditor|signed timestamped forensic artifacts,certain systems to allow for real-time monitoring,
 o-require,require,require|request,require,
-o-verified,verified,verified|and potential,verified,
+o-verified,verified,verified|verified and potential,verified,

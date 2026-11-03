@@ -268,9 +268,19 @@ class OptionRegistry:
         return option_id
 
 
+# Brackets that are cumulative or tied to the context selector rather than plain either/or.
+CHOICE_REWRITES = {
+    # "[verified] [and potential] breaches": "and potential" extends "verified", it isn't a stand-alone word.
+    ("verified", "and potential"): ["verified", "verified and potential"],
+    # Plural forms read badly after "the"; use the singular context selector instead.
+    ("Armed Conflict", "Grey Zone Activities", "Internal Disturbances"): ["Armed Conflict", "Grey Zone Activity", "Internal Disturbance"],
+}
+
+
 def replace_bracket_options(text: str, registry: OptionRegistry) -> str:
     def repl(m: re.Match) -> str:
         choices = [c.strip() for c in BRACKET_RE.findall(m.group(0))]
+        choices = CHOICE_REWRITES.get(tuple(choices), choices)
         if any(NON_OPTION_PREFIXES.match(c) for c in choices):
             return m.group(0)
         option_id = registry.get_or_create(choices, choices[0])
