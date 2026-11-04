@@ -7,7 +7,7 @@ import { pipeList } from "../utils.js";
 function finalText(entry, db, draft) {
   const raw = entry.custom ? entry.text : entry.text ?? db.byId.provisions.get(entry.id)?.text ?? "";
   const withOptions = resolveForAgreement(raw, db, draft.optionSelections);
-  return resolvePartyPlaceholders(withOptions, draft.parties);
+  return resolvePartyPlaceholders(withOptions, draft.parties).replace(/\^[^^]*\^/g, "");
 }
 
 function footnoteIdsOf(entry, db) {

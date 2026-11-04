@@ -72,7 +72,7 @@ const BUILDER_SECTION_IDS = (db) => new Set(db.sections.filter((s) => !NON_BUILD
 function renderIntro(db, draft, ui, redraw) {
   const wrap = h("div", { className: "builder-intro stack no-print" }, [
     h("div", { className: "note-banner", html: renderMarkdown(siteText(db, "builder.note_banner", `**Read this first:** the [Note to Users](${NOTE_TO_USERS_HREF}) explains how the Handbook's provisions fit together and how to adapt them.`)) }),
-    h("details", { className: "builder-intro-text", open: !draft.provisions.length }, [
+    h("details", { className: "builder-intro-text" }, [
       h("summary", {}, h("h1", {}, siteText(db, "builder.intro_title", "Build Your Own Agreement"))),
       h("div", { className: "prose", html: renderMarkdown(siteText(db, "builder.intro", BUILDER_INTRO_FALLBACK)) }),
     ]),
@@ -97,16 +97,16 @@ To get started, choose one of three approaches:
 - **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then remove those that are not relevant.
 - **Use Handbook view:** Read the Handbook section by section and add provisions to your Agreement as you go.
 
-Either way, once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
+Once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
 
 Your Agreement is saved automatically in this browser, and you can come back to it at any time. You will find your saved Agreements in the Drafts box at the top left of the builder.
 
-You can download your Agreement in various formats: Word, Markdown and PDF, by selecting the format in the Export drop down.
+You can download your Agreement in various formats: Word, Markdown, and PDF, by selecting the format in the Export drop down.
 
 A few things to note:
 
-- Terms that are defined will be included in the Definitions section, which you can add to.
-- Relevant footnotes will also be included in the final Agreement.`;
+- Terms that are defined will be included in the Definitions section, which you can edit and add to.
+- Relevant footnotes that can be edited will also be included in the final Agreement. You can also add your own footnotes.`;
 
 const handbookViewLink = (db) => h("a", { className: "btn", href: "#/handbook", onClick: () => state.setHandbookView(true) }, siteText(db, "builder.start_handbook", "Use Handbook view"));
 
@@ -419,7 +419,8 @@ function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
   item.appendChild(head);
 
   const textHost = h("div", {});
-  textHost.appendChild(h("p", { className: "provision-text" }, inlineText(currentText, db, draft)));
+  const fnRefs = entry.custom || entry.text != null ? [] : (provision?.footnote_ids || "").split("|").filter(Boolean).map((id) => h("sup", {}, h("span", { className: "footnote-ref", title: db.byId.footnotes.get(id)?.text || "" }, id.replace("fn-", ""))));
+  textHost.appendChild(h("p", { className: "provision-text" }, [...inlineText(currentText, db, draft), ...fnRefs]));
   textHost.addEventListener("dblclick", (e) => { if (e.target.tagName !== "SELECT") startEditing(item, textHost, entry, db, draft, redraw); });
   item.appendChild(textHost);
 
@@ -438,7 +439,7 @@ function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
 // (or the Handbook's bracketed alternatives while nothing is chosen).
 function inlineText(text, db, draft) {
   return splitOptions(text, db, draft.optionSelections).map((seg) => {
-    if (!seg.optionId) return resolvePartyPlaceholders(seg.text, draft.parties);
+    if (!seg.optionId) return resolvePartyPlaceholders(seg.text, draft.parties).replace(/\^[^^]*\^/g, "");
     const opt = db.byId.options.get(seg.optionId);
     const chosen = draft.optionSelections[seg.optionId] || "";
     const select = h("select", { className: `inline-choice ${chosen ? "" : "unchosen"}`, title: opt.label }, [
