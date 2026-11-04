@@ -4,6 +4,7 @@ import { resolveForReading, resolveForAgreement, resolvePartyPlaceholders, split
 import * as state from "../state.js";
 import { downloadMarkdown } from "../export/markdown.js";
 import { downloadDocx } from "../export/docx.js";
+import { entryFootnotes } from "../export/model.js";
 
 let unsubscribe = null;
 // Folded Definitions still belong in the printed Agreement.
@@ -419,10 +420,12 @@ function renderAgreementItem(entry, db, draft, redraw, siblings, index) {
   item.appendChild(head);
 
   const textHost = h("div", {});
-  const fnRefs = entry.custom || entry.text != null ? [] : (provision?.footnote_ids || "").split("|").filter(Boolean).map((id) => h("sup", {}, h("span", { className: "footnote-ref", title: db.byId.footnotes.get(id)?.text || "" }, id.replace("fn-", ""))));
+  const fns = entryFootnotes(entry, db, draft);
+  const fnRefs = fns.map((fn, i) => h("sup", {}, h("span", { className: "footnote-ref" }, String(i + 1))));
   textHost.appendChild(h("p", { className: "provision-text" }, [...inlineText(currentText, db, draft), ...fnRefs]));
   textHost.addEventListener("dblclick", (e) => { if (e.target.tagName !== "SELECT") startEditing(item, textHost, entry, db, draft, redraw); });
   item.appendChild(textHost);
+  item.appendChild(renderFootnotes(entry, fns, db, redraw));
 
   const actions = h("div", { className: "cluster small" });
   actions.appendChild(button(siteText(db, "builder.edit", "Edit"), () => startEditing(item, textHost, entry, db, draft, redraw), "btn-ghost btn-sm"));
@@ -475,6 +478,38 @@ function moveButtons(siblings, index, db, redraw) {
     redraw();
   });
   return h("div", { className: "cluster" }, [up, down]);
+}
+
+// Footnotes under a provision: the Handbook's and the user's own, each editable and removable.
+// Numbers here count within the provision; the export numbers them across the whole Agreement.
+function renderFootnotes(entry, fns, db, redraw) {
+  const box = h("div", { className: "agreement-footnotes small" });
+  const form = (initial, onSave) => {
+    const ta = h("textarea", { rows: 2, ariaLabel: "Footnote text" }, initial);
+    const row = h("div", {}, [ta, h("div", { className: "cluster", style: "margin-top:6px;" }, [
+      button("Save", () => { onSave(ta.value); redraw(); }, "btn-primary btn-sm"),
+      button("Cancel", () => redraw(), "btn-ghost btn-sm"),
+    ])]);
+    setTimeout(() => ta.focus());
+    return row;
+  };
+  fns.forEach((fn, i) => {
+    const line = h("div", { className: "agreement-footnote" });
+    const show = () => {
+      clear(line);
+      line.appendChild(h("span", {}, [h("sup", {}, String(i + 1)), " ", fn.text, fn.url ? h("a", { href: fn.url, target: "_blank", rel: "noopener" }, " [source]") : null]));
+      line.appendChild(h("span", { className: "cluster no-print" }, [
+        button("Edit", () => { clear(line); line.appendChild(form(fn.text, (t) => state.editFootnote(entry.id, fn.key, t))); }, "btn-ghost btn-sm"),
+        button("Remove", () => { state.removeFootnote(entry.id, fn.key); redraw(); }, "btn-ghost btn-sm btn-danger"),
+      ]));
+    };
+    show();
+    box.appendChild(line);
+  });
+  const add = h("div", { className: "no-print" });
+  add.appendChild(button("Add footnote", () => { clear(add); add.appendChild(form("", (t) => state.addOwnFootnote(entry.id, t))); }, "btn-ghost btn-sm"));
+  box.appendChild(add);
+  return box;
 }
 
 function startEditing(item, textHost, entry, db, draft, redraw) {

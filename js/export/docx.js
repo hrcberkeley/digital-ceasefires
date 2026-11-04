@@ -28,7 +28,6 @@ export async function downloadDocx(db, draft, { includeFootnotes = true } = {}) 
   const docx = await loadDocxLib();
   const { Document, Packer, Paragraph, TextRun, HeadingLevel, FootnoteReferenceRun, AlignmentType, LevelFormat } = docx;
   const model = buildExportModel(db, draft);
-  const fnNum = new Map(model.footnotes.map((fn, i) => [fn.footnote_id, i + 1]));
   const meta = (label, value) => new Paragraph({ children: [new TextRun({ text: `${label}: `, bold: true }), new TextRun(value)] });
   const children = [new Paragraph({ text: model.title, heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER })];
 
@@ -41,7 +40,7 @@ export async function downloadDocx(db, draft, { includeFootnotes = true } = {}) 
       children.push(new Paragraph({ text: `${section.number}. ${section.title}`, heading }));
       section.items.forEach((item) => {
         const runs = [new TextRun({ text: `${item.label}\t` }), new TextRun(item.text)];
-        if (includeFootnotes) for (const id of item.footnoteIds) if (fnNum.has(id)) runs.push(new FootnoteReferenceRun(fnNum.get(id)));
+        if (includeFootnotes) for (const n of item.footnoteNums) runs.push(new FootnoteReferenceRun(n));
         children.push(new Paragraph({ children: runs, tabStops: [{ type: "left", position: 720 }], indent: { left: 720, hanging: 720 } }));
       });
     }
@@ -80,7 +79,7 @@ export async function downloadDocx(db, draft, { includeFootnotes = true } = {}) 
   const footnotes = {};
   if (includeFootnotes) {
     for (const fn of model.footnotes) {
-      footnotes[fnNum.get(fn.footnote_id)] = { children: [new Paragraph({ children: [new TextRun({ text: `${fn.text}${fn.url ? ` (${fn.url})` : ""}`, size: 18 })] })] };
+      footnotes[fn.num] = { children: [new Paragraph({ children: [new TextRun({ text: `${fn.text}${fn.url ? ` (${fn.url})` : ""}`, size: 18 })] })] };
     }
   }
 

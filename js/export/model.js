@@ -10,9 +10,16 @@ function finalText(entry, db, draft) {
   return resolvePartyPlaceholders(withOptions, draft.parties).replace(/\^[^^]*\^/g, "");
 }
 
-function footnoteIdsOf(entry, db) {
-  if (entry.custom || entry.text != null) return []; // edited/custom text has no reliable footnote mapping
-  return pipeList(db.byId.provisions.get(entry.id)?.footnote_ids || "");
+/** A provision's footnotes: the Handbook's (minus any the user removed, with any edited text) then the user's own. */
+export function entryFootnotes(entry, db, draft) {
+  const handbook = entry.custom ? [] : pipeList(db.byId.provisions.get(entry.id)?.footnote_ids || "")
+    .filter((id) => !entry.hiddenFootnotes?.includes(id) && db.byId.footnotes.get(id))
+    .map((id) => {
+      const fn = db.byId.footnotes.get(id);
+      const edited = draft.footnoteEdits?.[id];
+      return { key: id, text: edited ?? fn.text, url: edited ? "" : fn.url, own: false };
+    });
+  return handbook.concat((entry.ownFootnotes || []).map((f) => ({ key: f.id, text: f.text, url: "", own: true })));
 }
 
 export function buildExportModel(db, draft) {
@@ -26,7 +33,7 @@ export function buildExportModel(db, draft) {
     bySection.get(sectionId).push(entry);
   }
 
-  const usedFootnotes = new Map();
+  const footnotes = []; // numbered 1, 2, 3 ... in document order
   // Every used section plus its ancestors, renumbered 1, 1.1, 2 ... (no gaps for skipped
   // sections). Provisions are lettered (a), (b) so they never collide with subsection numbers.
   const sections = agreementOutline(db).map(({ section, number, depth }) => ({
@@ -35,14 +42,11 @@ export function buildExportModel(db, draft) {
     title: section.title,
     depth,
     items: (bySection.get(section.section_id) || [])
-      .map((entry, i) => ({ order: entry.order ?? i, text: finalText(entry, db, draft), footnoteIds: footnoteIdsOf(entry, db) }))
+      .map((entry, i) => ({ order: entry.order ?? i, text: finalText(entry, db, draft), footnotes: entryFootnotes(entry, db, draft) }))
       .sort((a, b) => a.order - b.order)
       .map((x, i) => {
-        for (const fid of x.footnoteIds) {
-          const fn = db.byId.footnotes.get(fid);
-          if (fn) usedFootnotes.set(fid, fn);
-        }
-        return { ...x, label: `(${letterLabel(i)})` };
+        const footnoteNums = x.footnotes.map((fn) => footnotes.push({ num: footnotes.length + 1, text: fn.text, url: fn.url }));
+        return { order: x.order, text: x.text, footnoteNums, label: `(${letterLabel(i)})` };
       }),
   }));
 
@@ -71,7 +75,7 @@ export function buildExportModel(db, draft) {
     genericSignatures: !sections.some((s) => s.sectionId === "s-10.0"),
     definitions: defRows,
     lawClauses: lawRows,
-    footnotes: [...usedFootnotes.values()],
+    footnotes,
   };
 }
 

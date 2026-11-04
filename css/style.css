@@ -309,6 +309,8 @@ body:has(.home) .site-footer { margin-top: var(--space-5); }
 }
 .agreement-item.sortable-ghost { opacity: 0.3; }
 .agreement-item .provision-text { white-space: pre-wrap; }
+.agreement-footnotes { margin-top: var(--space-2); color: var(--color-ink-soft); }
+.agreement-footnote { display: flex; justify-content: space-between; gap: var(--space-3); align-items: baseline; }
 .agreement-item textarea { width: 100%; min-height: 90px; font: inherit; padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius); }
 .agreement-item-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
 .agreement-item.just-added { animation: just-added 1.6s ease-out; }

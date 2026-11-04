@@ -184,6 +184,35 @@ export function addCustomProvision(sectionId, text) {
   return id;
 }
 
+// Footnotes on a provision: the Handbook's (editable per draft, hideable per provision)
+// plus the user's own, stored on the entry as { id, text }.
+export function addOwnFootnote(entryId, text) {
+  const draft = getActiveDraft();
+  const entry = draft.provisions.find((p) => p.id === entryId);
+  if (!entry || !text.trim()) return;
+  (entry.ownFootnotes ??= []).push({ id: uid("fn"), text: text.trim() });
+  touch(draft);
+}
+
+export function editFootnote(entryId, key, text) {
+  const draft = getActiveDraft();
+  const entry = draft.provisions.find((p) => p.id === entryId);
+  const own = entry?.ownFootnotes?.find((f) => f.id === key);
+  if (!text.trim()) return;
+  if (own) own.text = text.trim();
+  else (draft.footnoteEdits ??= {})[key] = text.trim(); // Handbook footnote: edit applies to this draft
+  touch(draft);
+}
+
+export function removeFootnote(entryId, key) {
+  const draft = getActiveDraft();
+  const entry = draft.provisions.find((p) => p.id === entryId);
+  if (!entry) return;
+  if (entry.ownFootnotes?.some((f) => f.id === key)) entry.ownFootnotes = entry.ownFootnotes.filter((f) => f.id !== key);
+  else (entry.hiddenFootnotes ??= []).push(key);
+  touch(draft);
+}
+
 // ---------------------------------------------------------------------------
 // Definitions, pins, options, parties, context
 // ---------------------------------------------------------------------------

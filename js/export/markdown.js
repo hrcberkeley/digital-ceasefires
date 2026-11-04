@@ -11,7 +11,7 @@ export function draftToMarkdown(db, draft, { includeFootnotes = true } = {}) {
   for (const section of list) {
       lines.push(`${"#".repeat(section.depth + 2)} ${section.number}. ${section.title}`, "");
       for (const item of section.items) {
-        lines.push(`${item.label} ${item.text}` + footnoteMarks(item.footnoteIds, includeFootnotes), "");
+        lines.push(`${item.label} ${item.text}` + footnoteMarks(item.footnoteNums, includeFootnotes), "");
       }
     }
   };
@@ -47,16 +47,16 @@ export function draftToMarkdown(db, draft, { includeFootnotes = true } = {}) {
   if (includeFootnotes && model.footnotes.length) {
     lines.push("## Footnotes", "");
     for (const fn of model.footnotes) {
-      lines.push(`${fn.footnote_id.replace("fn-", "")}. ${fn.text}${fn.url ? ` (${fn.url})` : ""}`);
+      lines.push(`${fn.num}. ${fn.text}${fn.url ? ` (${fn.url})` : ""}`);
     }
   }
 
   return lines.join("\n");
 }
 
-function footnoteMarks(ids, includeFootnotes) {
-  if (!includeFootnotes || !ids.length) return "";
-  return ` ${ids.map((id) => `[${id.replace("fn-", "")}]`).join(" ")}`;
+function footnoteMarks(nums, includeFootnotes) {
+  if (!includeFootnotes || !nums.length) return "";
+  return ` ${nums.map((n) => `[${n}]`).join(" ")}`;
 }
 
 export function downloadMarkdown(db, draft, opts) {
