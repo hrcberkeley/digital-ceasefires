@@ -79,7 +79,11 @@ const BUILDER_SECTION_IDS = (db) => new Set(db.sections.filter((s) => !NON_BUILD
 
 function renderIntro(db, draft, ui, redraw) {
   const wrap = h("div", { className: "builder-intro stack no-print" }, [
-    h("div", { className: "note-banner", html: renderMarkdown(siteText(db, "builder.note_banner", `**Read this first:** the [Note to Users](${NOTE_TO_USERS_HREF}) explains how the Handbook's provisions fit together and how to adapt them.`)) }),
+    // Open on an empty draft; folds away once there's an Agreement to work on.
+    h("details", { className: "note-banner", open: !draft.provisions.length }, [
+      h("summary", {}, h("strong", {}, "Read this first")),
+      h("div", { html: renderMarkdown(siteText(db, "builder.note_banner", `The [Note to Users](${NOTE_TO_USERS_HREF}) explains how the Handbook's provisions fit together and how to adapt them.`).replace(/^\*\*Read this first:\*\*\s*/, "")) }),
+    ]),
     h("details", { className: "builder-intro-text" }, [
       h("summary", {}, h("h1", {}, siteText(db, "builder.intro_title", "Build Your Own Agreement"))),
       h("div", { className: "prose", html: renderMarkdown(siteText(db, "builder.intro", BUILDER_INTRO_FALLBACK)) }),
