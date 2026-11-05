@@ -55,7 +55,7 @@ body {
   color: var(--color-ink);
   background: var(--color-paper);
   line-height: 1.55;
-  overflow-x: clip;
+  overflow-x: hidden; overflow-x: clip;
   display: flex; flex-direction: column; min-height: 100dvh;
 }
 h1, h2, h3, h4 { font-family: var(--font-serif); line-height: 1.2; margin: 0 0 var(--space-3); }

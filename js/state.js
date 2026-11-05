@@ -164,7 +164,7 @@ export function editDefinitionText(id, text) {
   const custom = draft.customDefinitions.find((c) => c.id === id);
   if (custom) custom.text = text;
   else {
-    (draft.definitionEdits ??= {})[id] = text; // old drafts lack this field
+    (draft.definitionEdits = draft.definitionEdits || {})[id] = text; // old drafts lack this field
     if (!draft.pinned.includes(id)) draft.pinned.push(id); // keep it if its provision is removed
   }
   touch(draft);
@@ -190,7 +190,7 @@ export function addOwnFootnote(entryId, text) {
   const draft = getActiveDraft();
   const entry = draft.provisions.find((p) => p.id === entryId);
   if (!entry || !text.trim()) return;
-  (entry.ownFootnotes ??= []).push({ id: uid("fn"), text: text.trim() });
+  (entry.ownFootnotes = entry.ownFootnotes || []).push({ id: uid("fn"), text: text.trim() });
   touch(draft);
 }
 
@@ -200,7 +200,7 @@ export function editFootnote(entryId, key, text) {
   const own = entry?.ownFootnotes?.find((f) => f.id === key);
   if (!text.trim()) return;
   if (own) own.text = text.trim();
-  else (draft.footnoteEdits ??= {})[key] = text.trim(); // Handbook footnote: edit applies to this draft
+  else (draft.footnoteEdits = draft.footnoteEdits || {})[key] = text.trim(); // Handbook footnote: edit applies to this draft
   touch(draft);
 }
 
@@ -209,7 +209,7 @@ export function removeFootnote(entryId, key) {
   const entry = draft.provisions.find((p) => p.id === entryId);
   if (!entry) return;
   if (entry.ownFootnotes?.some((f) => f.id === key)) entry.ownFootnotes = entry.ownFootnotes.filter((f) => f.id !== key);
-  else (entry.hiddenFootnotes ??= []).push(key);
+  else (entry.hiddenFootnotes = entry.hiddenFootnotes || []).push(key);
   touch(draft);
 }
 
@@ -241,7 +241,7 @@ export function unpinItem(id) {
 export function excludeItem(id) {
   const draft = getActiveDraft();
   draft.pinned = draft.pinned.filter((p) => p !== id);
-  (draft.excluded ??= []).push(id); // old drafts lack this field
+  (draft.excluded = draft.excluded || []).push(id); // old drafts lack this field
   touch(draft);
 }
 
