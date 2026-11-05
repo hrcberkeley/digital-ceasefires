@@ -187,8 +187,8 @@ export function renderHandbook({ mountEl, db, params }) {
   content.appendChild(h("h1", {}, siteText(db, "handbook.title", "The Handbook")));
   if (isHandbookView()) {
     const bar = h("div", { className: "note-banner compact small cluster" }, [
-      h("span", {}, `Handbook view: adding provisions to ${getActiveDraft().name}`),
-      h("a", { href: "#/builder" }, "Back to Build an Agreement"),
+      h("span", {}, `Handbook view: adding provisions to ${getActiveDraft().name}.`),
+      h("a", { href: "#/builder" }, "View your Agreement draft in Build an Agreement"),
       h("button", { className: "btn btn-sm btn-ghost", onClick: () => { setHandbookView(false); bar.remove(); content.querySelectorAll(".provision-actions").forEach((e) => e.remove()); } }, "Turn off"),
     ]);
     content.appendChild(bar);

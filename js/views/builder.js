@@ -47,18 +47,25 @@ function mountWorkspace(root, db, draft, ui, redraw) {
   root.appendChild(renderHeader(db, draft, ui, redraw));
   if (ui.showSettings) root.appendChild(renderSettingsPanel(db, draft, redraw));
 
+  // One collapsed box, not a banner per provision (a full Agreement can trigger dozens).
   const outdated = state.findOutdatedProvisions(db);
-  for (const { entry, current } of outdated) {
-    root.appendChild(
-      h("div", { className: "note-banner compact small" }, [
-        h("strong", {}, `${current.provision_id} has changed in the handbook since you added it.`),
-        h("p", {}, `Now reads: "${truncate(resolveForReading(current.text, db), 200)}"`),
-        h("div", { className: "cluster" }, [
-          button("Keep using the updated text", () => { state.acknowledgeProvisionUpdate(entry.id, db); redraw(); }, "btn-sm"),
-          button("Freeze my current wording instead", () => { state.freezeProvisionText(entry.id, db); redraw(); }, "btn-ghost btn-sm"),
-        ]),
-      ])
-    );
+  if (outdated.length) {
+    const box = h("details", { className: "note-banner compact small" }, [
+      h("summary", {}, h("strong", {}, `${outdated.length} provision${outdated.length === 1 ? " has" : "s have"} changed in the Handbook since you added ${outdated.length === 1 ? "it" : "them"}. Show details`)),
+    ]);
+    for (const { entry, current } of outdated) {
+      box.appendChild(
+        h("div", { style: "margin-top: var(--space-3);" }, [
+          h("strong", {}, `${current.provision_id} now reads: `),
+          `"${truncate(resolveForReading(current.text, db), 200)}"`,
+          h("div", { className: "cluster" }, [
+            button("Keep using the updated text", () => { state.acknowledgeProvisionUpdate(entry.id, db); redraw(); }, "btn-sm"),
+            button("Freeze my current wording instead", () => { state.freezeProvisionText(entry.id, db); redraw(); }, "btn-ghost btn-sm"),
+          ]),
+        ])
+      );
+    }
+    root.appendChild(box);
   }
 
   const shell = h("div", { className: "builder-shell" });
@@ -84,6 +91,7 @@ function renderIntro(db, draft, ui, redraw) {
         button(siteText(db, "builder.start_scratch", "Build from scratch"), () => document.querySelector(".search-input")?.focus(), "btn-primary"),
         button(siteText(db, "builder.start_full", "Start with the full Agreement"), () => { state.addEverything(db, BUILDER_SECTION_IDS(db)); redraw(); }),
         handbookViewLink(db),
+        h("span", { className: "small muted" }, "Handbook view shows the Handbook only. Your draft Agreement stays saved: return to it any time with “Back to Build an Agreement”."),
       ])
     );
   }
@@ -274,6 +282,8 @@ function libraryDetails(id, label, ui, q) {
   const details = h("details", { className: "library-section", open: !!q || ui.open.has(id) }, [h("summary", {}, label)]);
   details.addEventListener("toggle", (e) => {
     if (e.target !== details) return; // nested <details> bubble their own toggles
+    // A redraw rebuilds already-open sections, which fires toggle again: ignore unless the user changed it.
+    if (details.open === ui.open.has(id)) return;
     details.open ? ui.open.add(id) : ui.open.delete(id);
     if (details.open) {
       const heading = document.querySelector(`.agreement-pane [data-section-id="${CSS.escape(id)}"]`);
