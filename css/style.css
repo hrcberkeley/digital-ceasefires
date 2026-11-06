@@ -261,7 +261,7 @@ body:has(.home) .site-footer { margin-top: var(--space-5); }
 .footnotes-list li { margin-bottom: var(--space-2); overflow-wrap: anywhere; }
 
 /* ---------- Builder ---------- */
-.builder-shell { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: var(--space-6); align-items: start; }
+.builder-shell { margin-top: var(--space-7, 3rem); display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: var(--space-6); align-items: start; }
 .builder-pane { min-width: 0; }
 .builder-pane-header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); position: sticky; top: 0; background: var(--color-paper); padding: var(--space-2) 0; z-index: 5; }
 /* desktop: both panes scroll independently so library and agreement can be compared */
@@ -287,14 +287,8 @@ body:has(.home) .site-footer { margin-top: var(--space-5); }
 .library-guidance { margin: 0 0 var(--space-2); }
 .library-guidance summary { font-size: 0.85rem; color: var(--color-ink-soft); font-weight: 400; }
 .library-subhead { margin: var(--space-3) 0 var(--space-2); font-size: 0.9rem; }
-.builder-intro { margin-bottom: var(--space-5); }
+.builder-intro { margin-bottom: var(--space-7, 3rem); }
 .builder-intro .prose { max-width: none; }
-.builder-intro-text summary { cursor: pointer; list-style: none; }
-.builder-intro-text summary h1 { display: inline; }
-.builder-intro-text summary::after { content: "Show instructions"; margin-left: var(--space-3); font-size: 0.85rem; color: var(--color-ink-soft); }
-.builder-intro-text[open] > summary::after { content: "Hide instructions"; }
-.builder-intro-text summary:hover::after { text-decoration: underline; }
-.builder-intro-text summary::-webkit-details-marker { display: none; }
 .export-menu { position: relative; }
 .export-menu > summary { list-style: none; cursor: pointer; }
 .export-menu > summary::-webkit-details-marker { display: none; }

@@ -79,49 +79,39 @@ const BUILDER_SECTION_IDS = (db) => new Set(db.sections.filter((s) => !NON_BUILD
 
 function renderIntro(db, draft, ui, redraw) {
   const wrap = h("div", { className: "builder-intro stack no-print" }, [
-    // Open on an empty draft; folds away once there's an Agreement to work on.
-    h("details", { className: "note-banner", open: !draft.provisions.length }, [
-      h("summary", {}, h("strong", {}, "Read this first")),
-      h("div", { html: renderMarkdown(siteText(db, "builder.note_banner", `The [Note to Users](${NOTE_TO_USERS_HREF}) explains how the Handbook's provisions fit together and how to adapt them.`).replace(/^\*\*Read this first:\*\*\s*/, "")) }),
-    ]),
-    h("details", { className: "builder-intro-text" }, [
-      h("summary", {}, h("h1", {}, siteText(db, "builder.intro_title", "Build Your Own Agreement"))),
-      h("div", { className: "prose", html: renderMarkdown(siteText(db, "builder.intro", BUILDER_INTRO_FALLBACK)) }),
-    ]),
+    h("h1", {}, "Build Your Own Agreement"),
+    h("div", { className: "prose", html: renderMarkdown(BUILDER_INTRO) }),
   ]);
   if (!draft.provisions.length) {
     wrap.appendChild(
       h("div", { className: "cluster" }, [
-        button(siteText(db, "builder.start_scratch", "Build from scratch"), () => document.querySelector(".search-input")?.focus(), "btn-primary"),
-        button(siteText(db, "builder.start_full", "Start with the full Agreement"), () => { state.addEverything(db, BUILDER_SECTION_IDS(db)); redraw(); }),
-        handbookViewLink(db),
-        h("span", { className: "small muted" }, "Handbook view shows the Handbook only. Your draft Agreement stays saved: return to it any time with “Back to Build an Agreement”."),
+        button("Build from scratch", () => document.querySelector(".search-input")?.focus(), "btn-primary"),
+        button("Start with the full Agreement", () => { state.addEverything(db, BUILDER_SECTION_IDS(db)); redraw(); }),
       ])
     );
   }
   return wrap;
 }
 
-const BUILDER_INTRO_FALLBACK = `Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](${NOTE_TO_USERS_HREF}) before you begin.
+const BUILDER_INTRO = `Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](${NOTE_TO_USERS_HREF}) before you begin.
 
-To get started, choose one of three approaches:
+To get started, choose one of two approaches:
 
 - **Build from scratch:** Select the provisions you wish to include from the left-hand column and add them to your Agreement in the right-hand column.
 - **Start with the full Agreement:** Add all of the Handbook's model provisions to your Agreement, then remove those that are not relevant.
-- **Use Handbook view:** Read the Handbook section by section and add provisions to your Agreement as you go.
 
-Once you have selected your provisions, you can edit and adapt the text in the right-hand column to reflect the specific circumstances, priorities, and commitments of the Parties.
+Select provisions from the left-hand column by clicking the (+) button. They will appear in the right-hand column, where you can edit and adapt them to reflect the specific circumstances, priorities, and commitments of the Parties.
 
 Your Agreement is saved automatically in this browser, and you can come back to it at any time. You will find your saved Agreements in the Drafts box at the top left of the builder.
 
-You can download your Agreement in various formats: Word, Markdown, and PDF, by selecting the format in the Export drop down.
+You can download your Agreement in various formats: Word, Markdown and PDF, by selecting the format in the Export drop down.
 
 A few things to note:
 
-- Terms that are defined will be included in the Definitions section, which you can edit and add to.
-- Relevant footnotes that can be edited will also be included in the final Agreement. You can also add your own footnotes.`;
+- Terms that are defined will be included in the Definitions section, which you can add to.
+- Relevant footnotes will also be included in the final Agreement.
 
-const handbookViewLink = (db) => h("a", { className: "btn", href: "#/handbook", onClick: () => state.setHandbookView(true) }, siteText(db, "builder.start_handbook", "Use Handbook view"));
+Now, first click below to decide if you want to build from scratch or start with the full Agreement.`;
 
 function renderHeader(db, draft, ui, redraw) {
   const drafts = state.listDrafts();
@@ -146,15 +136,14 @@ function renderHeader(db, draft, ui, redraw) {
         select,
         button(siteText(db, "builder.new_draft", "New draft"), () => { state.newDraft(); redraw(); }),
         button(siteText(db, "builder.delete_draft", "Delete draft"), () => {
-          if (confirm(`Delete "${draft.name}"? This can't be undone.`)) { state.deleteDraft(draft.id); redraw(); }
+          if (confirm(`Delete "${draft.name}"? This can't be undone.`)) { state.deleteDraft(draft.id); ui.search = ""; ui.open.clear(); ui.showSettings = false; redraw(); window.scrollTo(0, 0); }
         }, "btn-ghost btn-danger"),
         h("span", { className: "small muted" }, siteText(db, "builder.saved_indicator", "Saved")),
       ]),
       h("div", { className: "cluster" }, [
         h("label", { className: "small muted" }, siteText(db, "context.label", "Context")),
         contextSelect(db, draft),
-        button(siteText(db, "builder.settings", "Settings"), () => { ui.showSettings = !ui.showSettings; redraw(); }),
-        handbookViewLink(db),
+        button("Parties", () => { ui.showSettings = !ui.showSettings; redraw(); }),
         exportMenu,
       ]),
     ]),
@@ -164,11 +153,11 @@ function renderHeader(db, draft, ui, redraw) {
 function renderSettingsPanel(db, draft, redraw) {
   const panel = h("div", { className: "settings-panel stack" });
 
-  panel.appendChild(h("h3", {}, siteText(db, "builder.settings", "Settings")));
-  panel.appendChild(h("p", { className: "small muted" }, siteText(db, "builder.settings_help", "Name the Parties to fill [Party A], [Party B] and so on throughout your Agreement, or save this draft as a file to share or reopen later.")));
+  panel.appendChild(h("h3", {}, "Parties"));
+  panel.appendChild(h("p", { className: "small muted" }, "Name the Parties to fill [Party A], [Party B] and so on throughout your Agreement, or save this draft as a file to share or reopen later."));
 
   // Parties
-  const partiesField = h("div", { className: "field-row" }, [h("label", {}, siteText(db, "builder.parties_label", "Parties"))]);
+  const partiesField = h("div", { className: "field-row" }, [h("label", {}, "Names")]);
   const parties = draft.parties.length ? draft.parties : ["", "", ""];
   parties.forEach((name, i) => {
     const label = `Party ${"ABCDEFGHIJ"[i] || i + 1}`;
@@ -239,6 +228,8 @@ function contextSelect(db, draft) {
 function renderLibraryPane(db, draft, ui, redraw) {
   const pane = h("div", { className: "builder-pane library-pane no-print" });
   pane.appendChild(h("div", { className: "builder-pane-header" }, [h("h2", {}, siteText(db, "builder.library_title", "Provision library"))]));
+
+  pane.appendChild(h("p", { className: "small muted" }, "Choose the relevant provisions to be included in your agreement from each of the options below. To do so, expand on the options, then click on (+) button to add them to the agreement section on the right side."));
 
   const search = h("input", { className: "search-input", type: "search", placeholder: siteText(db, "builder.library_search_placeholder", "Search provisions..."), value: ui.search });
   search.addEventListener("input", () => {
