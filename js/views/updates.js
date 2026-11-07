@@ -7,13 +7,15 @@ export function renderUpdatesList({ mountEl, db }) {
     h("div", { className: "container section-pad" }, [
       h("div", { className: "prose" }, [
         h("h1", {}, t(db, "nav.updates", "Updates")),
-        ...db.posts.map((post) =>
-          h("article", { className: "post-card" }, [
+        ...db.posts.map((post) => {
+          const { text, more } = preview(post.body_markdown);
+          return h("article", { className: "post-card" }, [
             h("h2", {}, h("a", { href: `#/updates/${post.post_id}` }, post.title)),
             h("div", { className: "post-meta" }, `${formatDate(post.date)} · ${post.author_role}`),
-            h("div", { className: "prose", html: renderMarkdown(truncate(post.body_markdown)) }),
-          ])
-        ),
+            h("div", { className: "prose", html: renderMarkdown(text) }),
+            more ? h("p", {}, h("a", { href: `#/updates/${post.post_id}` }, "Read more →")) : null,
+          ]);
+        }),
       ]),
     ])
   );
@@ -37,7 +39,10 @@ export function renderUpdatePost({ mountEl, db, params }) {
   );
 }
 
-function truncate(markdown, maxLen = 280) {
-  const plain = markdown.replace(/[#*_`>-]/g, "");
-  return plain.length > maxLen ? `${plain.slice(0, maxLen)}...` : markdown;
+// Preview = whole paragraphs (markdown kept) until ~200 characters; skips headings.
+function preview(markdown, minLen = 200) {
+  const paras = markdown.split(/\n\s*\n/).filter((p) => p.trim() && !/^#/.test(p.trim()));
+  let out = "", i = 0;
+  while (i < paras.length && out.length < minLen) out += (out ? "\n\n" : "") + paras[i++];
+  return { text: out, more: i < paras.length };
 }
