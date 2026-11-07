@@ -20,4 +20,4 @@ export const CACHE_TTL_MS = 5 * 60 * 1000;
 
 // Target for the Handbook PDF link. Empty hides the link (renders as plain text)
 // until the final PDF is available -- set once the final PDF is available.
-export const HANDBOOK_PDF_URL = "";
+export const HANDBOOK_PDF_URL = "assets/Digital-Ceasefire-and-De-escalation-Handbook.pdf";

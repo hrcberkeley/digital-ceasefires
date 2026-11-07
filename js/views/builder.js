@@ -93,7 +93,7 @@ function renderIntro(db, draft, ui, redraw) {
   return wrap;
 }
 
-const BUILDER_INTRO = `Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](${NOTE_TO_USERS_HREF}) before you begin.
+const BUILDER_INTRO = `Use the Build an Agreement function to create an Agreement tailored to your specific conflict or security context. We recommend reading the [Note to Users](${NOTE_TO_USERS_HREF}) before you begin. You can also [download the full Handbook as a PDF](assets/Digital-Ceasefire-and-De-escalation-Handbook.pdf).
 
 To get started, choose one of two approaches:
 
