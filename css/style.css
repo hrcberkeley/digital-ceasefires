@@ -146,6 +146,7 @@ button { font: inherit; }
 .prose { max-width: 68ch; overflow-wrap: anywhere; }
 .handbook-intro { margin-bottom: var(--space-6); }
 .prose :is(h2, h3) { margin-top: var(--space-6); }
+.prose img { display: block; max-width: 100%; height: auto; margin: var(--space-5) 0; border-radius: 4px; }
 .muted { color: var(--color-ink-soft); }
 .small { font-size: 0.85rem; }
 .card {
